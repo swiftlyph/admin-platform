@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gasa Admin Platform</title>
+    <script>
+      // Applied before first paint to avoid a flash of the wrong theme.
+      // Storage key is namespaced per portal ("gasa-admin-theme", not
+      // the merchant portal's "gasa-theme") so both apps can run on
+      // localhost at once without overwriting each other's preference.
+      (function () {
+        try {
+          var stored = localStorage.getItem("gasa-admin-theme");
+          var theme =
+            stored === "gasa" || stored === "gasadark"
+              ? stored
+              : window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "gasadark"
+                : "gasa";
+          document.documentElement.classList.toggle("dark", theme === "gasadark");
+        } catch (e) {
+          // Leave the light (no .dark class) default in place.
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

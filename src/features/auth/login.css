@@ -1,0 +1,257 @@
+/*
+  THE VAULT — /login.
+
+  Scoped to the login feature rather than living in the global stylesheet:
+  nothing else in the app uses these classes, and keeping a screen's
+  treatment next to the screen is what stops index.css from slowly becoming
+  the place every one-off rule goes to hide.
+
+  Imported from src/index.css — NOT from login-page.tsx. `@utility` is a
+  Tailwind at-rule, and Tailwind only expands it in the stylesheet it
+  processes as an entry point; a CSS file imported from a .tsx module is
+  passed through by Vite as a plain asset, which would ship these blocks
+  into the bundle as inert `@utility …` text.
+
+  The composition is a framed plate rather than a floating card: an outer
+  hairline frame with corner ticks, a plate inside it, and generous margin
+  between the two. That gap is the whole idea — a card sits *on* a page, a
+  framed plate is *mounted* in one, and the mounting is what reads as a
+  secured entry point rather than a web form.
+
+  Premium here comes from proportion and type, not ornament: there is no
+  gradient, no glass, no brand hue. Everything below is hairlines, spacing
+  and one lit key.
+*/
+
+/*
+  The ground.
+
+  Deliberately NOT a grid. Graph paper is the default texture of every
+  dashboard and admin template in existence — a repeating pattern at a fixed
+  interval is exactly what makes a background read as stock, because the eye
+  recognises the tiling and files it as "technical decoration". Nothing that
+  repeats can feel bespoke.
+
+  What replaces it has no repeat at all: three overlapping washes at
+  different scales and angles, so the ground has a light source and a
+  direction instead of a pattern. There is nothing to recognise.
+
+  1. a broad off-centre key light, high and slightly left — off-centre
+     because a perfectly centred glow reads as a vignette filter, while an
+     offset one reads as light entering the room from somewhere;
+  2. a cool counter-wash low and right, so the field turns slightly in
+     value across the diagonal rather than being one flat tone;
+  3. a wide, very low-contrast diagonal sweep that gives the whole surface
+     a grain direction — the thing that makes a material look milled.
+
+  All token-derived, so the whole construction re-resolves per theme.
+*/
+@utility login-canvas {
+  /*
+    The base is deliberately a step darker than the plate so there is a real
+    value gap for the plate to sit in. Removing the grid must not also remove
+    the ground's structure — a featureless field gives the plate nothing to
+    sit against, which reads as unfinished rather than clean.
+  */
+  background-color: color-mix(in oklch, var(--foreground) 7%, var(--muted));
+  background-image:
+    radial-gradient(
+      ellipse 55% 45% at 38% 18%,
+      color-mix(in oklch, var(--background) 98%, transparent) 0%,
+      color-mix(in oklch, var(--background) 55%, transparent) 40%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 65% 55% at 88% 92%,
+      color-mix(in oklch, var(--foreground) 11%, transparent) 0%,
+      transparent 58%
+    ),
+    linear-gradient(
+      146deg,
+      color-mix(in oklch, var(--foreground) 4%, transparent) 0%,
+      transparent 34%,
+      transparent 62%,
+      color-mix(in oklch, var(--foreground) 6%, transparent) 100%
+    );
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+/*
+  Dark mode is not the same recipe re-tinted. On a dark ground an added
+  *light* wash is what carries depth (a darker wash on near-black is
+  invisible), so the key light is strengthened and the counter-wash flips
+  from a shadow to a faint cool lift.
+
+  Restrained rather than dramatic. A near-black ground with a deep vignette
+  reads as a photographic effect applied to the page; the console wants a
+  dark *material*, evenly lit, with just enough fall-off to seat the plate.
+  The base sits a modest step under the plate and the corner shadow is
+  light — the plate separates on its rim (see .dark .vault-plate), so the
+  ground does not need to go dark to make room for it.
+*/
+.dark .login-canvas {
+  background-color: color-mix(in oklch, black 12%, var(--background));
+  background-image:
+    radial-gradient(
+      ellipse 60% 50% at 38% 18%,
+      color-mix(in oklch, var(--foreground) 8%, transparent) 0%,
+      color-mix(in oklch, var(--foreground) 2.5%, transparent) 42%,
+      transparent 74%
+    ),
+    radial-gradient(
+      ellipse 65% 55% at 88% 92%,
+      color-mix(in oklch, var(--foreground) 3.5%, transparent) 0%,
+      transparent 60%
+    ),
+    linear-gradient(
+      146deg,
+      color-mix(in oklch, var(--foreground) 3.5%, transparent) 0%,
+      transparent 36%,
+      transparent 66%,
+      color-mix(in oklch, black 12%, transparent) 100%
+    );
+}
+
+/*
+  The outer frame: a single hairline, held away from the plate by padding.
+  Deliberately weightless — it is a datum line, not a border. The corner
+  ticks (drawn as children in the markup) are what make it read as a
+  registration frame rather than a second box.
+*/
+@utility vault-frame {
+  border: 1px solid color-mix(in oklch, var(--border) 85%, transparent);
+}
+
+.dark .vault-frame {
+  border-color: color-mix(in oklch, var(--foreground) 12%, transparent);
+}
+
+/*
+  A corner tick: two short rules meeting at a right angle, drawn with
+  borders on a small empty box. Placed at the frame's four corners, they do
+  what a full second border would do — declare "this is a registered area" —
+  at a fraction of the visual weight.
+*/
+@utility vault-tick {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-color: color-mix(in oklch, var(--foreground) 22%, transparent);
+  border-style: solid;
+  border-width: 0;
+}
+
+/*
+  The plate: the surface the form is actually set on.
+
+  A three-stop shadow — contact, mid, ambient — rather than one blur. Real
+  objects cast a tight dark contact shadow *and* a wide soft one, and the
+  eye reads the pair as height; one blur reads as a sticker. The hairline
+  top highlight lets the plate catch light along its top edge the way a
+  real material would, and in dark mode a faint top-down sheen keeps a flat
+  dark fill from dissolving into a flat dark ground.
+*/
+@utility vault-plate {
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.9),
+    0 0 0 1px var(--border),
+    0 1px 2px -1px rgb(16 24 40 / 0.08),
+    0 10px 20px -10px rgb(16 24 40 / 0.1),
+    0 30px 60px -20px rgb(16 24 40 / 0.18);
+}
+
+/*
+  Dark mode needs the plate to sit *above* the ground, not blend into it.
+  The canvas is oklch(0.16) and the card oklch(0.196) — only 0.036 apart, so
+  shadow alone can't separate them on a dark field (a shadow darker than an
+  already-dark ground is invisible). The lift comes from the rim instead: a
+  brighter hairline ring plus a stronger top highlight, with the sheen
+  carried further down the plate.
+*/
+.dark .vault-plate {
+  background-image: linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 0.045),
+    transparent 55%
+  );
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.12),
+    0 0 0 1px rgb(255 255 255 / 0.09),
+    0 1px 2px -1px rgb(0 0 0 / 0.6),
+    0 12px 24px -12px rgb(0 0 0 / 0.65),
+    0 34px 68px -24px rgb(0 0 0 / 0.9);
+}
+
+/*
+  A rule that carries a label: the hairline runs the full width and the
+  label sits on top of it with the plate's own background punched out
+  behind, so the rule appears to pass *behind* the text. Set on the
+  element in markup via a background-colored span.
+*/
+@utility vault-rule {
+  background-image: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in oklch, var(--border) 90%, transparent) 12%,
+    color-mix(in oklch, var(--border) 90%, transparent) 88%,
+    transparent
+  );
+  height: 1px;
+}
+
+/*
+  The field's inset shadow — the detail that makes the control read as cut
+  into the plate rather than laid on it. Kept here rather than as a Tailwind
+  arbitrary value on the element so the dark-mode variant sits beside it.
+*/
+@utility login-input {
+  box-shadow: inset 0 1px 2px rgb(16 24 40 / 0.04);
+}
+
+.dark .login-input {
+  box-shadow: none;
+}
+
+/*
+  The submit button's resting surface: a top-lit gradient over `primary`
+  plus an inset highlight, so the control reads as a raised key rather than
+  a filled rectangle. Separated from the utility classes on the element
+  because a gradient over a token can't be expressed in Tailwind's
+  from-/to- syntax without hardcoding the color.
+*/
+@utility login-submit {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--primary-foreground) 10%, var(--primary)),
+    var(--primary)
+  );
+  box-shadow:
+    inset 0 1px 0 0 color-mix(in oklch, var(--primary-foreground) 22%, transparent),
+    0 1px 2px rgb(16 24 40 / 0.18),
+    0 6px 16px -8px rgb(16 24 40 / 0.5);
+}
+
+/*
+  Dark mode inverts the tokens — `primary` is near-white and
+  `primary-foreground` near-black — so the light-mode formula above would mix
+  *black* into the top edge and turn the button into a grey metal ramp. Here
+  the light comes off the top of the primary itself, and the inset highlight
+  is dropped: on a light key against a dark panel, the raised read comes from
+  the shadow beneath, not from a rim above.
+*/
+.dark .login-submit {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklch, white 8%, var(--primary)),
+    var(--primary)
+  );
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.5),
+    0 6px 18px -8px rgb(0 0 0 / 0.8);
+}
+
+/* Disabled: drop to a flat fill — the lit treatment implies pressable. */
+.login-submit:disabled {
+  background-image: none;
+  box-shadow: none;
+}

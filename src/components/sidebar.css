@@ -1,0 +1,192 @@
+/*
+  THE RAIL — the app shell's left nav.
+
+  Imported from src/index.css — NOT from a component. `@utility` is a Tailwind
+  at-rule, and Tailwind only expands it in the stylesheet it processes as an
+  entry point; a CSS file imported from a .tsx module is passed through by Vite
+  as a plain asset, which would ship these blocks as inert text.
+
+  Everything here is an echo of a device the app already owns (see
+  features/auth/login.css), not new ornament:
+
+  - the fading hairline is `vault-rule`;
+  - the lit active band is `login-submit`;
+  - the inset edge is `login-input`'s.
+
+  That is the whole brief: the console should look like one instrument, so the
+  rail is built from the login screen's vocabulary rather than a second one.
+  No brand hue, no decorative gradient — hairlines, value steps, one lit key.
+*/
+
+/*
+  The rail's own surface.
+
+  The stock rail sits at oklch(0.97) against a 0.985 page — a 0.015 step, which
+  is no step at all. Two changes give it a body: it drops a little further from
+  the page, and a very low-contrast vertical wash runs down it so the surface
+  turns slightly in value instead of being one flat fill. The wash has no
+  repeat and no pattern; it reads as a material, not a texture.
+
+  The right edge is a real hairline plus a hair of inward shadow, so the page
+  looks like it sits *in front of* the rail rather than beside it.
+*/
+@utility rail-surface {
+  background-color: color-mix(in oklch, var(--foreground) 3.5%, var(--sidebar));
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--background) 55%, transparent) 0%,
+    transparent 42%,
+    color-mix(in oklch, var(--foreground) 2.5%, transparent) 100%
+  );
+  border-right: 1px solid color-mix(in oklch, var(--border) 90%, transparent);
+  box-shadow: inset -8px 0 12px -12px rgb(16 24 40 / 0.16);
+}
+
+.dark .rail-surface {
+  /*
+    Dark inverts the logic, not the recipe. On a dark ground an added *light*
+    wash is what carries depth — a darker wash on near-black is invisible — so
+    the rail lifts a step above the page and the sheen falls from the top.
+  */
+  background-color: color-mix(in oklch, white 2.5%, var(--sidebar));
+  background-image: linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 0.035) 0%,
+    transparent 38%,
+    rgb(0 0 0 / 0.12) 100%
+  );
+  border-right-color: color-mix(in oklch, var(--foreground) 11%, transparent);
+  box-shadow: inset -8px 0 14px -12px rgb(0 0 0 / 0.5);
+}
+
+/*
+  A hairline that fades out at both ends rather than butting into the rail's
+  edges — the same gradient rule the login plate uses (`vault-rule`). A full-
+  width 1px line reads as a table border; a rule that dissolves reads as
+  drawn. Used to close the header and open the footer.
+*/
+@utility rail-rule {
+  height: 1px;
+  border: 0;
+  background-image: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in oklch, var(--sidebar-border) 95%, transparent) 14%,
+    color-mix(in oklch, var(--sidebar-border) 95%, transparent) 86%,
+    transparent
+  );
+}
+
+.dark .rail-rule {
+  background-image: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in oklch, var(--foreground) 13%, transparent) 14%,
+    color-mix(in oklch, var(--foreground) 13%, transparent) 86%,
+    transparent
+  );
+}
+
+/*
+  The active band.
+
+  Was a flat fill; now it is a lit key, built the way login-submit is: a
+  top-lit gradient over `sidebar-primary` plus an inset highlight along the top
+  edge, so the band reads as a raised surface catching light rather than a
+  painted rectangle. A three-stop shadow (contact, mid, ambient) sits under it
+  — real objects cast a tight dark contact shadow *and* a wide soft one, and
+  the eye reads the pair as height.
+
+  Full-bleed is preserved: the band still spans the rail, and a brighter tick
+  on its leading edge gives the fill somewhere to start.
+*/
+@utility rail-active {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--sidebar-primary-foreground) 11%, var(--sidebar-primary)),
+    var(--sidebar-primary)
+  );
+  box-shadow:
+    inset 3px 0 0 0 color-mix(in oklch, var(--sidebar-primary-foreground) 45%, transparent),
+    inset 0 1px 0 0 color-mix(in oklch, var(--sidebar-primary-foreground) 18%, transparent),
+    0 1px 2px -1px rgb(16 24 40 / 0.22),
+    0 6px 14px -8px rgb(16 24 40 / 0.35);
+}
+
+.dark .rail-active {
+  /*
+    Dark flips the tokens — `sidebar-primary` is near-white, its foreground
+    near-black — so mixing the foreground into the top edge would smear the key
+    grey. The light comes off the primary itself instead, and the inset top
+    highlight is dropped: on a light key against a dark panel the raised read
+    comes from the shadow beneath, not a rim above.
+  */
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklch, white 10%, var(--sidebar-primary)),
+    var(--sidebar-primary)
+  );
+  box-shadow:
+    inset 3px 0 0 0 color-mix(in oklch, var(--sidebar) 55%, transparent),
+    0 1px 2px rgb(0 0 0 / 0.5),
+    0 6px 16px -8px rgb(0 0 0 / 0.75);
+}
+
+/*
+  Hover on an inactive row. A flat tint at this value is nearly invisible on
+  the washed rail, so hover gets the same leading tick as the active band —
+  at a fraction of the weight. The row announces itself on the edge the eye is
+  already tracking, which is what makes the list feel responsive rather than
+  merely clickable.
+*/
+@utility rail-row {
+  transition:
+    background-color 120ms ease,
+    box-shadow 120ms ease,
+    color 120ms ease;
+}
+
+.rail-row:hover:not([data-active="true"]) {
+  box-shadow: inset 2px 0 0 0 color-mix(in oklch, var(--sidebar-foreground) 22%, transparent);
+}
+
+/*
+  The active row's ICON.
+
+  SidebarMenuSubButton paints its glyph with `[&>svg]:text-sidebar-accent-
+  foreground` — a child selector, so it outranks any `color` set on the button
+  itself. On an inactive row that is correct; on the near-ink active band it
+  left a dark-slate icon sitting on dark ink, which is what made the row read
+  muddy rather than crisp. The label inverted; the icon did not.
+
+  Stated here rather than as a utility class because it has to beat that child
+  selector, and a plain class in the same layer would only tie with it.
+*/
+.rail-row[data-active="true"] > svg,
+.rail-row[data-active="true"] svg {
+  color: var(--sidebar-primary-foreground);
+  opacity: 0.92;
+}
+
+/*
+  A section heading.
+
+  Replaces the mono `console-label` here. That device was drawn for field
+  labels on the login plate, where it has room; in a 16rem rail, tracked
+  uppercase mono is the widest, heaviest thing on screen and it fights the
+  sans item labels directly beneath it — three competing treatments in one
+  column.
+
+  This keeps the heading quiet and unmistakably a *heading*: the same sans as
+  the rows, a step smaller, medium weight, and just enough tracking to read as
+  set rather than shrunk. Mono is then spent in exactly one place — the GASA
+  wordmark — which is what makes it read as a signature instead of a texture.
+*/
+@utility rail-heading {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-feature-settings: "cv05" 1;
+}

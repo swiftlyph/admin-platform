@@ -137,7 +137,10 @@
 
   --radius: 0.3rem;
 
-  --sidebar: oklch(0.97 0.003 260);
+  /* Deepened from 0.97. With only one hairline at the seam, the rail needs a
+     real value step to stay its own region — and the wider gap is what makes
+     the active tab (which takes --background) visibly merge with the page. */
+  --sidebar: oklch(0.955 0.004 260);
   --sidebar-foreground: oklch(0.26 0.012 260);
   --sidebar-primary: oklch(0.28 0.028 258);
   --sidebar-primary-foreground: oklch(0.985 0.002 260);
@@ -189,7 +192,9 @@
   --chart-4: oklch(0.75 0.09 150);
   --chart-5: oklch(0.68 0.07 285);
 
-  --sidebar: oklch(0.185 0.009 258);
+  /* Lifted from 0.185, mirroring light: the rail steps away from the page so
+     the tab's --background fill reads as an opening into it. */
+  --sidebar: oklch(0.205 0.010 258);
   --sidebar-foreground: oklch(0.9 0.004 260);
   --sidebar-primary: oklch(0.92 0.006 260);
   --sidebar-primary-foreground: oklch(0.17 0.01 258);

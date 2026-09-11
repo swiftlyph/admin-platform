@@ -30,6 +30,19 @@
   The right edge is a real hairline plus a hair of inward shadow, so the page
   looks like it sits *in front of* the rail rather than beside it.
 */
+/*
+  The notch radius, and the row's own leading radius — one value so the curve
+  that carves the rail and the curve that opens it are visibly the same move.
+  0.6rem against a 36px row: enough to read as a carve, well short of a lozenge.
+*/
+:root {
+  /* The pill's corner radius. Half the 36px row height reads as fully
+     rounded, matching the reference's capsule. */
+  --rail-notch: 1.125rem;
+  /* How far the pill is inset from each side of the rail. */
+  --rail-inset: 0.5rem;
+}
+
 @utility rail-surface {
   background-color: color-mix(in oklch, var(--foreground) 3.5%, var(--sidebar));
   background-image: linear-gradient(
@@ -38,8 +51,16 @@
     transparent 42%,
     color-mix(in oklch, var(--foreground) 2.5%, transparent) 100%
   );
-  border-right: 1px solid color-mix(in oklch, var(--border) 90%, transparent);
-  box-shadow: inset -8px 0 12px -12px rgb(16 24 40 / 0.16);
+  /*
+    No border-right and no inward shadow here.
+
+    The primitive already paints one right edge on `sidebar-container`
+    (`group-data-[side=left]:border-r`, active because this app uses the
+    default `variant="sidebar"`). Painting a second one here stacked two lines
+    at the seam, and the inward shadow darkened the exact strip the active tab
+    has to disappear into. One edge, owned by the primitive, is what lets the
+    tab interrupt it cleanly.
+  */
 }
 
 .dark .rail-surface {
@@ -55,8 +76,6 @@
     transparent 38%,
     rgb(0 0 0 / 0.12) 100%
   );
-  border-right-color: color-mix(in oklch, var(--foreground) 11%, transparent);
-  box-shadow: inset -8px 0 14px -12px rgb(0 0 0 / 0.5);
 }
 
 /*
@@ -100,36 +119,125 @@
   Full-bleed is preserved: the band still spans the rail, and a brighter tick
   on its leading edge gives the fill somewhere to start.
 */
+/*
+  The active row is a TAB joined to the page, not a chip sitting on the rail.
+
+  It takes the page's own `--background`, so the row and the content area to
+  its right are one continuous surface: the rail appears to open into the page
+  at exactly the item you're on. That is why there is no fill contrast to tune
+  here — the "you are here" signal is the join itself, plus weight on the
+  label, rather than a slab of ink.
+
+  The direction works in both themes without a hue, because the page and the
+  rail sit on opposite sides of each other in value: in light the page is
+  *lighter* than the rail (0.985 vs 0.97), in dark it is *darker* (0.16 vs
+  0.185). The row merges with the page either way.
+
+  It bleeds RIGHT rather than left — the join is on the page side — and the
+  leading corners are rounded so the tab reads as a shape growing out of the
+  rail instead of a full-width stripe.
+*/
+/*
+  Zero the sub-list's own insets.
+
+  SidebarMenuSub ships `mx-3.5 px-2.5`, and passing `mx-0 px-0` in className
+  does NOT reliably win: both are plain utilities of equal specificity, so the
+  one emitted later in the stylesheet takes it — and Tailwind orders by its own
+  scale, putting mx-3.5 (offset ~8774) after mx-0 (~8707). The sub-rows were
+  therefore sitting ~14px short of the rail's right edge, which is why the
+  active tab's seam-breaking strip landed mid-rail and Transactions /
+  Redemptions never blended while Dashboard did.
+
+  A real selector outranks a utility class, so the override is stated here
+  rather than in the component.
+*/
+[data-slot="sidebar-menu-sub"] {
+  margin-inline: 0;
+  padding-inline: 0;
+}
+
+/*
+  Sub-rows indent from the pill's own inset rather than from the rail edge, so
+  a child pill still clears the panel on both sides.
+*/
+[data-slot="sidebar-menu-sub"] [data-slot="sidebar-menu-sub-button"] {
+  padding-left: calc(0.75rem + var(--rail-inset));
+}
+
+/*
+  The active row's surface — stated as a real selector, not a utility.
+
+  Both `SidebarMenuButton` and `SidebarMenuSubButton` hard-code
+  `data-active:bg-sidebar-accent` in their base class strings, so every active
+  row carries it whether this app passes it or not. A competing
+  `data-active:rail-active` utility is the SAME specificity, which makes the
+  winner whichever Tailwind happens to emit later — a coin flip this lost,
+  leaving the row painted `--sidebar-accent`: a tint of the RAIL
+  (light 0.935 vs rail 0.955) rather than the page (0.985). That is why the
+  tab never matched the content area.
+
+  Rules in this file land after Tailwind's utility layer, so keying off the
+  attribute wins deterministically instead of by emission order.
+*/
+.rail-row[data-active="true"],
+.rail-row[data-active="true"]:hover,
+.rail-row[data-active="true"]:active,
+.rail-row[data-active="true"]:focus-visible {
+  background-color: var(--background);
+  background-image: none;
+}
+
+/*
+  Nothing widens or un-clips the rail any more.
+
+  An earlier pass had the active row protrude past the rail's edge, which
+  needed the wrapper widened and SidebarContent's `overflow-auto` disabled to
+  let it escape. The pill sits entirely INSIDE the panel, so both of those are
+  gone and the primitive's own scrolling and clipping are left untouched.
+*/
+
+/*
+  The label, for the same reason as the surface.
+
+  Both button bases also hard-code `data-active:text-sidebar-accent-foreground`
+  (and the sub-button adds `[&>svg]:text-sidebar-accent-foreground`), which is
+  the accent's ink — tuned for a tinted rail chip, not for the page surface the
+  tab actually shows. Hover and press states carry their own copies, so each
+  one is pinned here rather than left to win or lose on emission order.
+*/
+.rail-row[data-active="true"],
+.rail-row[data-active="true"]:hover,
+.rail-row[data-active="true"]:active {
+  color: var(--foreground);
+}
+
 @utility rail-active {
-  background-image: linear-gradient(
-    to bottom,
-    color-mix(in oklch, var(--sidebar-primary-foreground) 11%, var(--sidebar-primary)),
-    var(--sidebar-primary)
-  );
-  box-shadow:
-    inset 3px 0 0 0 color-mix(in oklch, var(--sidebar-primary-foreground) 45%, transparent),
-    inset 0 1px 0 0 color-mix(in oklch, var(--sidebar-primary-foreground) 18%, transparent),
-    0 1px 2px -1px rgb(16 24 40 / 0.22),
-    0 6px 14px -8px rgb(16 24 40 / 0.35);
+  /*
+    A solid fill and NO edge of any kind.
+
+    The hairlines that used to trace the top and bottom made sense while the
+    row sat inside the rail. Now that it protrudes, those strips run along the
+    tongue against the page and outline it — which is exactly what turns the
+    shape into a floating card instead of a piece of the rail reaching out.
+    The reference's tongue has no border at all; its colour alone separates it.
+  */
+  background-color: var(--background);
+  background-image: none;
+  box-shadow: none;
+}
+
+.dark .rail-row:hover:not([data-active="true"]) {
+  /* The rail is dark, so the hover tick lifts in value instead of dropping. */
+  box-shadow: inset 2px 0 0 0 color-mix(in oklch, var(--sidebar-foreground) 26%, transparent);
 }
 
 .dark .rail-active {
   /*
-    Dark flips the tokens — `sidebar-primary` is near-white, its foreground
-    near-black — so mixing the foreground into the top edge would smear the key
-    grey. The light comes off the primary itself instead, and the inset top
-    highlight is dropped: on a light key against a dark panel the raised read
-    comes from the shadow beneath, not a rim above.
+    Same as light: a solid fill and no edge. In dark the page is darker than
+    the rail, so the tongue reads as a shape cut forward out of the panel.
   */
-  background-image: linear-gradient(
-    to bottom,
-    color-mix(in oklch, white 10%, var(--sidebar-primary)),
-    var(--sidebar-primary)
-  );
-  box-shadow:
-    inset 3px 0 0 0 color-mix(in oklch, var(--sidebar) 55%, transparent),
-    0 1px 2px rgb(0 0 0 / 0.5),
-    0 6px 16px -8px rgb(0 0 0 / 0.75);
+  background-color: var(--background);
+  box-shadow: none;
 }
 
 /*
@@ -139,15 +247,64 @@
   already tracking, which is what makes the list feel responsive rather than
   merely clickable.
 */
+/*
+  A nav row.
+
+  The trailing end is rounded while the leading edge stays flush to the rail:
+  the fill still runs the full width, but it reads as a drawn shape rather
+  than a table cell with square corners. That squareness was most of what made
+  the active state feel stiff.
+
+  Motion is eased rather than linear and runs a little longer than a UI tick,
+  so a row settles into its state instead of snapping. `transform` is included
+  so the hover nudge below interpolates rather than jumping.
+*/
 @utility rail-row {
+  /*
+    Fully rounded on all four corners — a capsule, not a band. The row sits
+    INSIDE the rail with a margin on both sides (see --rail-inset), so every
+    corner is visible and the rail's own right edge stays an unbroken line.
+
+    Stated as the shorthand because the primitive's base sets `rounded-xl`;
+    anything left unstated would keep its ~7.7px.
+  */
+  border-radius: var(--rail-notch);
   transition:
-    background-color 120ms ease,
-    box-shadow 120ms ease,
-    color 120ms ease;
+    background-color 180ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 180ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    color 160ms ease-out,
+    transform 180ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
+/*
+  Hover on an inactive row: the same leading tick as the active band at a
+  fraction of the weight, plus a hair of travel toward the content. The row
+  answers on the edge the eye is already tracking, which is what makes the
+  list feel alive rather than merely clickable.
+*/
 .rail-row:hover:not([data-active="true"]) {
-  box-shadow: inset 2px 0 0 0 color-mix(in oklch, var(--sidebar-foreground) 22%, transparent);
+  box-shadow: inset 2px 0 0 0 color-mix(in oklch, var(--sidebar-foreground) 18%, transparent);
+  transform: translateX(1px);
+}
+
+/*
+  No travel on the active row. It is joined to the page; a row that shifts
+  would break the seam it exists to make.
+*/
+
+/*
+  Motion is decoration here — every state is already legible from colour and
+  the leading tick alone. Nothing in this codebase guarded for reduced motion
+  before, so the guard is introduced with the motion that needs it.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .rail-row {
+    transition-duration: 1ms;
+  }
+
+  .rail-row:hover:not([data-active="true"]) {
+    transform: none;
+  }
 }
 
 /*
@@ -164,8 +321,14 @@
 */
 .rail-row[data-active="true"] > svg,
 .rail-row[data-active="true"] svg {
-  color: var(--sidebar-primary-foreground);
-  opacity: 0.92;
+  /*
+    The tab is the page's surface, not an inverted band, so the glyph takes the
+    page's own foreground. This still has to out-rank SidebarMenuSubButton's
+    `[&>svg]:text-sidebar-accent-foreground` child selector, which is why it is
+    written as a selector rather than a utility class.
+  */
+  color: var(--foreground);
+  opacity: 1;
 }
 
 /*
@@ -189,4 +352,11 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-feature-settings: "cv05" 1;
+  /* A heading is a label, not a target: no rounded trailing end, no travel. */
+  border-radius: 0;
+}
+
+.rail-heading:hover {
+  transform: none;
+  box-shadow: none;
 }

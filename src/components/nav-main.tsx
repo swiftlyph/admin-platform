@@ -74,24 +74,34 @@ export function NavMainCollapsed({ items }: { items: NavItem[] }) {
  * rows below carry `px-3` of their own so the *text* sits where it always did
  * — only the chip's edges move.
  */
-const GROUP_FULL_BLEED = "px-0"
+/*
+  The rows sit inside the rail rather than spanning it: the active pill needs
+  a margin on both sides to read as an object floating on the panel, which is
+  what the reference does. `px-2` is the primitive's own group padding.
+*/
+const GROUP_FULL_BLEED = "px-2"
 
 /**
  * A full-bleed row: square on the left edge so the fill meets the rail, and
  * `px-3` of content inset so labels keep their old position.
  */
-const ROW_FULL_BLEED = "rounded-none px-3 text-[0.8125rem] tracking-[0.005em]"
+/*
+  Content inset within each row. The pill's own shape and margin come from
+  `rail-row` / the group padding (see sidebar.css).
+*/
+const ROW_FULL_BLEED = "px-3 text-[0.8125rem] tracking-[0.005em]"
 
 /**
- * The active row is a SOLID band with inverted text, running the full width
- * of the rail. `sidebar-primary` is near-ink in light and near-white in dark,
- * so the inversion follows the theme with no brand hue introduced.
+ * The active row is a TAB joined to the page: it takes the page's own
+ * background, so the rail appears to open into the content area at the item
+ * you're on. See `rail-active` in sidebar.css for how the seam is made.
  *
- * Shared by top-level rows and sub-rows so "you are here" looks identical at
- * both depths.
+ * Nothing here sets a fill or an inverted text colour any more — the row's
+ * surface IS the page's surface, and the label simply gains weight. Shared by
+ * top-level rows and sub-rows so "you are here" reads the same at both depths.
  */
 const ACTIVE_BAND =
-  "rail-row data-active:rail-active data-active:bg-sidebar-primary data-active:text-sidebar-primary-foreground data-active:hover:bg-sidebar-primary data-active:hover:text-sidebar-primary-foreground"
+  "rail-row data-active:rail-active data-active:text-foreground data-active:hover:text-foreground"
 
 /** Matches a route and any of its children (/app/merchants/12 keeps Merchants lit). */
 function useIsActive(url: string): boolean {
@@ -136,7 +146,7 @@ function NavSectionItem({ section }: { section: NavSection }) {
           <SidebarMenuButton
             tooltip={section.label}
             aria-label={`${section.label} section`}
-            className={`${ROW_FULL_BLEED} rail-heading h-7 mt-3 text-sidebar-foreground/40 hover:bg-transparent hover:text-sidebar-foreground/65`}
+            className={`${ROW_FULL_BLEED} rail-heading h-7 mt-4 mb-0.5 text-sidebar-foreground/40 hover:bg-transparent hover:text-sidebar-foreground/65`}
           >
             <span className="flex-1 truncate text-left">{section.label}</span>
             <ChevronRightIcon className="ml-auto size-3.5 shrink-0 opacity-60 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />

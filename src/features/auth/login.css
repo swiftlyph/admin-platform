@@ -52,26 +52,34 @@
     value gap for the plate to sit in. Removing the grid must not also remove
     the ground's structure — a featureless field gives the plate nothing to
     sit against, which reads as unfinished rather than clean.
+
+    That gap has to survive the key light on top of it. At the original
+    values the base mixed to roughly oklch(0.90), then the first wash
+    repainted the upper-left in --background at 98% — effectively opaque —
+    which erased the gap exactly where the plate sits and left a near-white
+    field. The washes are meant to modulate the ground, not replace it, so
+    the key light now tops out translucent and the base carries a deeper
+    step. Same three-wash construction; visible this time.
   */
-  background-color: color-mix(in oklch, var(--foreground) 7%, var(--muted));
+  background-color: color-mix(in oklch, var(--foreground) 12%, var(--muted));
   background-image:
     radial-gradient(
       ellipse 55% 45% at 38% 18%,
-      color-mix(in oklch, var(--background) 98%, transparent) 0%,
-      color-mix(in oklch, var(--background) 55%, transparent) 40%,
-      transparent 72%
+      color-mix(in oklch, var(--background) 82%, transparent) 0%,
+      color-mix(in oklch, var(--background) 40%, transparent) 42%,
+      transparent 74%
     ),
     radial-gradient(
       ellipse 65% 55% at 88% 92%,
-      color-mix(in oklch, var(--foreground) 11%, transparent) 0%,
-      transparent 58%
+      color-mix(in oklch, var(--foreground) 16%, transparent) 0%,
+      transparent 60%
     ),
     linear-gradient(
       146deg,
-      color-mix(in oklch, var(--foreground) 4%, transparent) 0%,
+      color-mix(in oklch, var(--foreground) 7%, transparent) 0%,
       transparent 34%,
       transparent 62%,
-      color-mix(in oklch, var(--foreground) 6%, transparent) 100%
+      color-mix(in oklch, var(--foreground) 10%, transparent) 100%
     );
   background-repeat: no-repeat;
   background-size: 100% 100%;

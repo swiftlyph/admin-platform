@@ -41,16 +41,38 @@
   --rail-notch: 1.125rem;
   /* How far the pill is inset from each side of the rail. */
   --rail-inset: 0.5rem;
+  /*
+    How far the active row's bulge pushes past the rail's right edge.
+
+    This is now the only number that shapes the effect. The rail and the pill
+    share a surface, so the bulge is not a chip laid on the rail — it is the
+    rail's own edge swelling outward around the active item and returning.
+  */
+  --rail-overhang: 0.75rem;
 }
 
 @utility rail-surface {
-  background-color: color-mix(in oklch, var(--foreground) 3.5%, var(--sidebar));
-  background-image: linear-gradient(
-    to bottom,
-    color-mix(in oklch, var(--background) 55%, transparent) 0%,
-    transparent 42%,
-    color-mix(in oklch, var(--foreground) 2.5%, transparent) 100%
-  );
+  /*
+    The rail is the SAME surface as the active pill — that is the whole
+    mechanism now.
+
+    Previously the rail sat a step below the page and the active row took the
+    page's colour, so the row was a light lozenge *inside* a grey rail. Two
+    colours means a seam, and every attempt to disguise that seam with corner
+    patches left visible nubs above and below the pill.
+
+    With the rail painted the same near-white as the pill, there is no seam to
+    hide: the active row's bulge simply reads as the rail's own edge swelling
+    outward and returning — one continuous silhouette, exactly as in the
+    reference. The separation from the page is then carried by the right edge
+    alone (a hairline, owned by the primitive) rather than by a value step.
+
+    The vertical wash is dropped with it. It existed to give a grey panel some
+    body; on a surface that must match the pill exactly, any gradient would
+    make the match drift down the column and re-introduce the seam.
+  */
+  background-color: var(--background);
+  background-image: none;
   /*
     No border-right and no inward shadow here.
 
@@ -65,17 +87,17 @@
 
 .dark .rail-surface {
   /*
-    Dark inverts the logic, not the recipe. On a dark ground an added *light*
-    wash is what carries depth — a darker wash on near-black is invisible — so
-    the rail lifts a step above the page and the sheen falls from the top.
+    Dark follows the same rule as light, for the same reason: the rail must be
+    the SAME surface as the active pill, or the seam comes back and with it the
+    corner nubs.
+
+    The previous lifted fill and top-down sheen existed to give a dark panel
+    body against a darker page. That job now belongs to the right edge alone —
+    a single hairline, owned by the primitive — which is enough to separate two
+    regions that share a colour.
   */
-  background-color: color-mix(in oklch, white 2.5%, var(--sidebar));
-  background-image: linear-gradient(
-    to bottom,
-    rgb(255 255 255 / 0.035) 0%,
-    transparent 38%,
-    rgb(0 0 0 / 0.12) 100%
-  );
+  background-color: var(--background);
+  background-image: none;
 }
 
 /*
@@ -188,12 +210,68 @@
 }
 
 /*
-  Nothing widens or un-clips the rail any more.
+  UN-CLIPPING, so the notch can exist.
 
-  An earlier pass had the active row protrude past the rail's edge, which
-  needed the wrapper widened and SidebarContent's `overflow-auto` disabled to
-  let it escape. The pill sits entirely INSIDE the panel, so both of those are
-  gone and the primitive's own scrolling and clipping are left untouched.
+  Two clips in the primitive would each erase this effect on their own, and
+  both have to go. They are stated here as real selectors because both live in
+  the primitive's own base class strings, where a utility of equal specificity
+  would only win by Tailwind's emission order — the coin flip this file's
+  other overrides already document losing.
+
+  1. `sidebar-content` carries `overflow-auto` (scrolling long nav lists),
+     which crops the pill's overhang to a flat edge at the rail boundary.
+
+     `overflow-x: visible` alongside `overflow-y: auto` does NOT work here:
+     when one axis is `visible` and the other is not, the spec computes the
+     `visible` axis to `auto`, so the pair silently becomes auto/auto and the
+     overhang is clipped exactly as before.
+
+     So the clip is dropped outright. This app's nav is five destinations in
+     two sections — it does not overflow a viewport, and the primitive's
+     `flex-1 min-h-0` still keeps the footer pinned. If the nav ever grows
+     long enough to need scrolling, the notch and a scroll container are
+     genuinely incompatible on the same element and the scroll has to move to
+     an inner wrapper.
+  2. `sidebar-menu-button` carries `overflow-hidden` (it truncates long
+     labels), which clips the row's OWN ::before/::after — the fillets would
+     never paint. Truncation is preserved by the primitive's
+     `[&>span:last-child]:truncate`, which does the real work; the row-level
+     clip is belt-and-braces that the notch cannot coexist with.
+*/
+[data-slot="sidebar-content"] {
+  overflow: visible;
+}
+
+.rail-row[data-active="true"] {
+  overflow: visible;
+}
+
+/*
+  The collapsed icon rail keeps none of this.
+
+  At 3rem wide the rail is a column of square targets; a capsule hanging
+  0.75rem past its edge would be wider than the margin it sits in, and the
+  fillets would have no rail left to curve against. The collapsed state goes
+  back to a plain filled square — which is what the reference's own narrow
+  variants do.
+*/
+[data-collapsible="icon"] .rail-row[data-active="true"] {
+  margin-right: 0;
+  padding-right: 0;
+  overflow: hidden;
+}
+
+
+/*
+  Interrupting the rail's right edge.
+
+  `sidebar-container` paints one hard `border-r` down the full height of the
+  rail. A border is a single line on one box — it cannot bow outward — so the
+  bulge has to cover it rather than bend it: the active row overhangs PAST the
+  border and, being painted later, hides the 1px line across its own height.
+
+  The edge stays intact everywhere else on the rail, which is what makes the
+  interruption read as the silhouette swelling rather than as a broken line.
 */
 
 /*
@@ -213,21 +291,71 @@
 
 @utility rail-active {
   /*
-    A solid fill and NO edge of any kind.
+    THE BULGE.
 
-    The hairlines that used to trace the top and bottom made sense while the
-    row sat inside the rail. Now that it protrudes, those strips run along the
-    tongue against the page and outline it — which is exactly what turns the
-    shape into a floating card instead of a piece of the rail reaching out.
-    The reference's tongue has no border at all; its colour alone separates it.
+    The active row IS the rail here — same surface, same colour — so this rule
+    carries no fill of its own beyond matching that surface, and no edge. What
+    marks the row is its silhouette: it extends past the rail's right boundary
+    and its ends are fully rounded, so the rail's edge appears to swell outward
+    around the active item and return.
+
+    The negative right margin is what lets it overhang without widening the
+    rail — the primitive's container keeps its width, so nothing reflows — and
+    the matching right padding keeps the label from drifting with it.
+
+    No box-shadow. A shadow would imply the pill floats above the rail, which
+    is precisely the reading this construction exists to avoid.
   */
   background-color: var(--background);
   background-image: none;
   box-shadow: none;
+  position: relative;
+  z-index: 1;
+  margin-right: calc(var(--rail-overhang) * -1);
+  padding-right: calc(0.75rem + var(--rail-overhang));
+  border-radius: var(--rail-notch);
 }
 
+/*
+  The two fillets.
+
+  Each is a square block of the PAGE's colour with one corner rounded, parked
+  just outside the pill's rounded end and tight against the rail's right edge.
+  The rounded corner faces the pill, so the eye reads a continuous edge that
+  leaves the rail, curves around the capsule, and returns — the rail appearing
+  to bend rather than to be interrupted.
+
+  Drawn in `--background` (the page colour, which is also the pill's fill)
+  rather than in the rail's colour: these are the page intruding into the rail,
+  which is the same story the pill itself tells. Painting them in the rail's
+  tone would fill the gap but read as two grey nubs.
+
+  `box-shadow` sprays the same colour outward by a hair to close the seam
+  against the pill's antialiased edge — without it a 1px hairline of rail
+  shows in the joint at some zoom levels.
+*/
+/*
+  NO FILLETS.
+
+  Four passes were spent trying to draw two concave corner patches that would
+  hide the seam between a grey rail and a light pill: a rounded square, then a
+  radial-gradient anchored on the near corner, then one anchored on the far
+  corner. Each rendered as a pair of small grey blocks above and below the
+  pill, because a separate box butted against a shape it is not part of always
+  shows its own edges.
+
+  The seam is gone now — the rail and the pill are the same surface (see
+  `rail-surface`) — so there is nothing left to patch. The bulge is drawn by
+  the row's own geometry alone, which is what makes it one continuous
+  silhouette rather than three boxes pretending to be one.
+*/
+
 .dark .rail-row:hover:not([data-active="true"]) {
-  /* The rail is dark, so the hover tick lifts in value instead of dropping. */
+  /* The rail is dark, so the hover tick lifts in value instead of dropping.
+     The fill is suppressed here for the same reason as in light — see the
+     light-mode hover rule below. */
+  background-color: transparent;
+  background-image: none;
   box-shadow: inset 2px 0 0 0 color-mix(in oklch, var(--sidebar-foreground) 26%, transparent);
 }
 
@@ -283,8 +411,48 @@
   list feel alive rather than merely clickable.
 */
 .rail-row:hover:not([data-active="true"]) {
+  /*
+    The fill is SUPPRESSED, not tinted.
+
+    `SidebarMenuButton` and `SidebarMenuSubButton` both hard-code
+    `hover:bg-sidebar-accent` in their base class strings. That token is a tint
+    of the rail (light 0.935 against a 0.985 rail), which made hover a solid
+    grey capsule — heavier than the active row, which carries no fill at all
+    now that it reads as the rail's own edge swelling outward. Hover was
+    out-shouting "you are here", which is exactly backwards.
+
+    Stated as a real selector rather than a competing utility: a plain
+    `hover:bg-transparent` class ties with the primitive's on specificity, and
+    the winner is then whichever Tailwind emits later — the coin flip this file
+    has already documented losing twice (see the active-surface and sub-list
+    notes above).
+
+    The leading tick below is left to carry hover on its own. It marks the edge
+    the eye is already tracking, and being a shadow rather than a fill it can
+    never compete with the active row's silhouette.
+  */
+  background-color: transparent;
+  background-image: none;
   box-shadow: inset 2px 0 0 0 color-mix(in oklch, var(--sidebar-foreground) 18%, transparent);
   transform: translateX(1px);
+}
+
+/*
+  Press, for the same reason as hover.
+
+  The primitive carries `active:bg-sidebar-accent` as well, so without this a
+  row still flashes the grey capsule on mouse-down — the exact fill just
+  removed from hover, reappearing for the length of a click. The press signal
+  is the tick deepening instead, which keeps every state on one device.
+*/
+.rail-row:active:not([data-active="true"]) {
+  background-color: transparent;
+  background-image: none;
+  box-shadow: inset 2px 0 0 0 color-mix(in oklch, var(--sidebar-foreground) 30%, transparent);
+}
+
+.dark .rail-row:active:not([data-active="true"]) {
+  box-shadow: inset 2px 0 0 0 color-mix(in oklch, var(--sidebar-foreground) 42%, transparent);
 }
 
 /*
@@ -356,7 +524,21 @@
   border-radius: 0;
 }
 
-.rail-heading:hover {
+.rail-heading:hover,
+.rail-heading:active,
+.rail-heading[data-state="open"]:hover {
+  /*
+    A heading is a label, not a target: no tick, no travel, and no fill.
+
+    nav-main.tsx passes `hover:bg-transparent` on this row, but that is a plain
+    utility of the same specificity as the primitive's `hover:bg-sidebar-accent`
+    — and the primitive also carries `data-open:hover:bg-sidebar-accent`, which
+    fires on exactly these rows because every section starts open. Both are
+    pinned here as real selectors so the heading can never take a fill by
+    emission order.
+  */
+  background-color: transparent;
+  background-image: none;
   transform: none;
   box-shadow: none;
 }

@@ -49,6 +49,21 @@
     rail's own edge swelling outward around the active item and returning.
   */
   --rail-overhang: 0.75rem;
+  /*
+    The fillet: the reverse curve where the rail's edge turns IN to meet the
+    pill, above and below it.
+
+    Without these the pill reads as a convex tongue poking out of a straight
+    edge. With them the edge sweeps inward and the pill sits in a carved
+    notch — the rail appears to bend around the active item rather than to be
+    interrupted by it.
+
+    An earlier attempt at this failed because the rail and the pill were the
+    same colour, so there was no step for a fillet to be cut from and the
+    corner pieces showed as grey nubs. The rail is `--sidebar` and the pill
+    `--background` now, so there is a real edge to curve.
+  */
+  --rail-fillet: 0.55rem;
 }
 
 @utility rail-surface {
@@ -239,8 +254,82 @@
   overflow: visible;
 }
 
+/*
+  The rail paints ABOVE the content area, so the bulge is visible.
+
+  `sidebar-container` is `fixed … z-10`, and `SidebarInset` is a later sibling
+  in the same stacking context with its own background. Later-painted wins at
+  equal z-index, so the page was drawing straight over the 0.75rem of pill that
+  extends past the rail — which is why the active row looked perfectly flush
+  with the rail's edge instead of swelling past it. The overhang was always
+  rendering; it was just underneath.
+
+  Raising the rail is enough on its own: nothing in this shell overlays the nav
+  (the header is inside the inset, not above the rail), so there is no element
+  that legitimately needs to cover it.
+*/
+[data-slot="sidebar-container"] {
+  z-index: 20;
+}
+
 .rail-row[data-active="true"] {
   overflow: visible;
+}
+
+/*
+  THE FILLETS — the two concave corners that invert the pill's ends.
+
+  Each is a block of RAIL colour with a circle of PAGE colour bitten out of the
+  corner facing the pill. That leaves a quarter-circle of rail hugging the
+  capsule's end, so the rail's edge appears to sweep inward around the active
+  item instead of running straight past a tongue stuck onto it.
+
+  The colours are the whole reason this works now. The last attempt drew these
+  while the rail and the pill were both `--background`: with no value step
+  there was nothing for a fillet to be cut from, and the pieces showed as grey
+  nubs. The rail is `--sidebar` and the pill `--background` now, so the bite
+  reads as a real edge.
+
+  Anchored on the corner NEAREST the pill, at a radius equal to the box, so the
+  page-coloured circle occupies the corner the capsule meets and the rail
+  quarter fills the rest. The hard stop (same length twice) keeps the arc crisp
+  — a soft ramp would read as a shadow rather than a cut.
+
+  They sit at the pill's own right edge, INCLUDING its overhang, so the curve
+  meets the capsule where it actually ends rather than at the rail boundary.
+*/
+.rail-row[data-active="true"]::before,
+.rail-row[data-active="true"]::after {
+  content: "";
+  position: absolute;
+  right: calc(var(--rail-overhang) * -1);
+  width: var(--rail-fillet);
+  height: var(--rail-fillet);
+  pointer-events: none;
+  background-color: var(--sidebar);
+}
+
+/* Above the pill: the page circle sits at the BOTTOM-RIGHT, the corner the
+   capsule's top end meets. */
+.rail-row[data-active="true"]::before {
+  bottom: 100%;
+  background-image: radial-gradient(
+    circle at bottom right,
+    var(--background) 0,
+    var(--background) 100%,
+    transparent 100%
+  );
+}
+
+/* Below the pill: mirrored — the bite is at the TOP-RIGHT. */
+.rail-row[data-active="true"]::after {
+  top: 100%;
+  background-image: radial-gradient(
+    circle at top right,
+    var(--background) 0,
+    var(--background) 100%,
+    transparent 100%
+  );
 }
 
 /*
@@ -256,6 +345,16 @@
   margin-right: 0;
   padding-right: 0;
   overflow: hidden;
+}
+
+/*
+  No fillets at icon width. The row has no overhang there, so there is no
+  capsule end for the rail to curve around — the two blocks would just sit on
+  the rail as a pair of marks.
+*/
+[data-collapsible="icon"] .rail-row[data-active="true"]::before,
+[data-collapsible="icon"] .rail-row[data-active="true"]::after {
+  content: none;
 }
 
 

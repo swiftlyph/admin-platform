@@ -79,7 +79,19 @@ export function NavMainCollapsed({ items }: { items: NavItem[] }) {
   a margin on both sides to read as an object floating on the panel, which is
   what the reference does. `px-2` is the primitive's own group padding.
 */
-const GROUP_FULL_BLEED = "px-2"
+/*
+  Left padding only.
+
+  `px-2` put 8px on BOTH sides, so every row stopped 8px short of the rail's
+  right edge. The active row's overhang then spent most of itself just crossing
+  that padding, leaving it looking flush with the rail instead of merging into
+  the page — and with no real junction between pill and page, the concave
+  corners had nothing to curve around.
+
+  Dropping the right side lets the row reach the boundary; `--rail-overhang`
+  carries it past, which is what the fillets are cut against.
+*/
+const GROUP_FULL_BLEED = "pl-2 pr-0"
 
 /**
  * A full-bleed row: square on the left edge so the fill meets the rail, and

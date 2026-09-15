@@ -302,7 +302,21 @@
 .rail-row[data-active="true"]::after {
   content: "";
   position: absolute;
-  right: calc(var(--rail-overhang) * -1);
+  /*
+    Offset by `var(--rail-overhang)`, so the fillets land on the RAIL's edge.
+
+    The pill's padding box extends `--rail-overhang` past the rail boundary
+    (that overhang is what makes it merge into the page), and an absolutely
+    positioned child resolves against that padding box. So `right: 0` is not
+    the rail's edge — it is the pill's outermost edge, out in the page, which
+    is where these two squares were sitting with no rail behind them to be cut
+    from.
+
+    Pulling them back by the overhang puts them exactly at the rail boundary,
+    in the corner where rail meets pill — the only place a concave sweep has
+    anything to bite into.
+  */
+  right: var(--rail-overhang);
   width: var(--rail-fillet);
   height: var(--rail-fillet);
   pointer-events: none;
@@ -313,22 +327,35 @@
    capsule's top end meets. */
 .rail-row[data-active="true"]::before {
   bottom: 100%;
+  /*
+    The radius is `var(--rail-fillet)` — the box's own size — NOT `100%`.
+
+    In a radial-gradient a percentage resolves against the farthest corner, so
+    `100%` put the stop beyond every edge: the page colour filled the entire
+    block and the `transparent` stop got no area at all. Both fillets were
+    painting as solid `--background` squares, invisible against the page.
+
+    At `--rail-fillet` the circle exactly meets the two edges adjacent to its
+    anchor corner, so it cuts a true quarter-disc out of the rail-coloured
+    block — the concave sweep.
+  */
   background-image: radial-gradient(
-    circle at bottom right,
-    var(--background) 0,
-    var(--background) 100%,
-    transparent 100%
+    circle at top left,
+    transparent 0,
+    transparent var(--rail-fillet),
+    var(--background) var(--rail-fillet)
   );
 }
 
 /* Below the pill: mirrored — the bite is at the TOP-RIGHT. */
 .rail-row[data-active="true"]::after {
   top: 100%;
+  /* Mirrored, with the same radius correction as ::before above. */
   background-image: radial-gradient(
-    circle at top right,
-    var(--background) 0,
-    var(--background) 100%,
-    transparent 100%
+    circle at bottom left,
+    transparent 0,
+    transparent var(--rail-fillet),
+    var(--background) var(--rail-fillet)
   );
 }
 
@@ -345,6 +372,12 @@
   margin-right: 0;
   padding-right: 0;
   overflow: hidden;
+  /*
+    Symmetric again at icon width. The left-rounded / right-square shape only
+    makes sense where the pill meets the page; on a 3rem column it has no page
+    edge to join, so a flat right side would just look like a clipped chip.
+  */
+  border-radius: var(--rail-notch);
 }
 
 /*
@@ -409,7 +442,17 @@
   z-index: 1;
   margin-right: calc(var(--rail-overhang) * -1);
   padding-right: calc(0.75rem + var(--rail-overhang));
-  border-radius: var(--rail-notch);
+  /*
+    Rounded on the LEFT only; the right edge is square and flush with the page.
+
+    A fully rounded capsule curves away from the page at its right end, which
+    leaves a sliver of rail between pill and page that no fillet can bridge —
+    the pill then reads as a lozenge floating in a gap rather than as a shape
+    merging into the content area. Squaring that edge is what lets the pill
+    join the page, and the concave corners above and below are then the only
+    curves in the silhouette: the rail's edge sweeping in to meet it.
+  */
+  border-radius: var(--rail-notch) 0 0 var(--rail-notch);
 }
 
 /*

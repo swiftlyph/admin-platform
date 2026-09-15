@@ -53,25 +53,20 @@
 
 @utility rail-surface {
   /*
-    The rail is the SAME surface as the active pill — that is the whole
-    mechanism now.
+    The rail takes `--sidebar` — the palette's own token for this surface.
 
-    Previously the rail sat a step below the page and the active row took the
-    page's colour, so the row was a light lozenge *inside* a grey rail. Two
-    colours means a seam, and every attempt to disguise that seam with corner
-    patches left visible nubs above and below the pill.
+    It sits a step off the page in both themes (light 0.955 against a 0.985
+    page; dark 0.205 against 0.16), which is what gives the active row's
+    `--background` pill something to read against. While the rail matched the
+    pill exactly there was no seam to hide, but there was also nothing to see:
+    the active item registered as bold text alone.
 
-    With the rail painted the same near-white as the pill, there is no seam to
-    hide: the active row's bulge simply reads as the rail's own edge swelling
-    outward and returning — one continuous silhouette, exactly as in the
-    reference. The separation from the page is then carried by the right edge
-    alone (a hairline, owned by the primitive) rather than by a value step.
-
-    The vertical wash is dropped with it. It existed to give a grey panel some
-    body; on a surface that must match the pill exactly, any gradient would
-    make the match drift down the column and re-introduce the seam.
+    A flat fill, deliberately — no wash. The active row is a shape cut into
+    this surface, and a gradient would make the value it is cut from drift
+    down the column, so the pill would match the rail at one height and not at
+    another.
   */
-  background-color: var(--background);
+  background-color: var(--sidebar);
   background-image: none;
   /*
     No border-right and no inward shadow here.
@@ -87,16 +82,18 @@
 
 .dark .rail-surface {
   /*
-    Dark follows the same rule as light, for the same reason: the rail must be
-    the SAME surface as the active pill, or the seam comes back and with it the
-    corner nubs.
+    Dark needs no override any more: `--sidebar` is defined per theme, so the
+    utility above already resolves to 0.205 here against a 0.16 page.
 
-    The previous lifted fill and top-down sheen existed to give a dark panel
-    body against a darker page. That job now belongs to the right edge alone —
-    a single hairline, owned by the primitive — which is enough to separate two
-    regions that share a colour.
+    The step flips direction with the theme — in light the rail sits BELOW the
+    page, in dark ABOVE it — and the active row's `--background` pill follows,
+    reading as darker than the rail rather than lighter. Either way there is a
+    step, which is all the pill needs.
+
+    Kept as an empty-intent rule rather than deleted so the next person looking
+    for the dark treatment finds this note instead of assuming it was missed.
   */
-  background-color: var(--background);
+  background-color: var(--sidebar);
   background-image: none;
 }
 

@@ -272,8 +272,51 @@
   z-index: 20;
 }
 
+/*
+  The rail's own right border is dropped entirely.
+
+  `sidebar-container` paints a 1px `border-r` down its full height (measured at
+  x=255–256, `oklch(0.9 0.005 260)`). The active pill overhangs to x=267 and so
+  covers that line across its own 36px — but the fillets sit at x=243–252, a
+  full 3px INSIDE the border, so they cover nothing. The result is a short grey
+  stub of border hanging above and below the pill, right where the corner curve
+  is meant to read as a clean edge. That is the line in the screenshot.
+
+  A border cannot be interrupted — it is one line on one box — so the choice is
+  to keep it and accept the stub, or drop it and let the rail's edge be defined
+  by the value step between `--sidebar` and the page. The step is what actually
+  separates the two regions (the border was only ever reinforcing it), and the
+  fillets already draw the curve at the boundary, so dropping it loses nothing
+  and removes the stub.
+*/
+[data-slot="sidebar-container"]:has(.rail-row[data-active="true"]) {
+  border-right-color: transparent;
+}
+
 .rail-row[data-active="true"] {
   overflow: visible;
+}
+
+/*
+  The top-level row must be allowed to OVERHANG, like the sub-rows are.
+
+  Measured in the browser: the rail's right edge is at x=255. An active sub-row
+  (Merchants) ends at 268 — 13px past it — while an active top-level row
+  (Dashboard) ends at exactly 255. Both carry the same `margin-right: -12px`,
+  but Dashboard is width-constrained by its flex parent, so the negative margin
+  only pulls it TO the edge instead of past it.
+
+  The fillets sit 12px in from each pill's own padding box, so on Merchants
+  they land at 256 (flush with the rail) and on Dashboard at 243 — twelve
+  pixels inside it. Same CSS, different pill width; that difference alone is
+  what made one row's corners look correct and the other's inset.
+
+  The sub-rows escape the constraint because `[data-slot="sidebar-menu-sub"]`
+  is padding-zeroed above, which leaves them room to grow into. The top-level
+  list has no such rule, so the width is released here instead.
+*/
+[data-slot="sidebar-menu-item"]:has(> .rail-row[data-active="true"]) {
+  width: calc(100% + var(--rail-overhang));
 }
 
 /*
@@ -315,6 +358,12 @@
     Pulling them back by the overhang puts them exactly at the rail boundary,
     in the corner where rail meets pill — the only place a concave sweep has
     anything to bite into.
+
+    This only resolves correctly when the ROW is the containing block. The
+    top-level rows sit in a `SidebarMenuItem`, which the primitive ships as
+    `relative` — so without the rule below, Dashboard's fillets anchored to
+    that wrapper instead of to its pill and landed inset from the rail edge,
+    while the sub-rows (whose wrapper chain is inset-zeroed) looked correct.
   */
   right: var(--rail-overhang);
   width: var(--rail-fillet);

@@ -13,7 +13,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 
@@ -107,7 +106,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <NavUser />
       </SidebarFooter>
-      <SidebarRail />
+      {/*
+        No SidebarRail.
+
+        It is an invisible 16px strip straddling the rail's right edge that
+        paints a 2px bar on hover (`after:w-[2px] hover:after:bg-sidebar-border`)
+        and toggles the sidebar on click. Two reasons it goes:
+
+        - the collapse control already lives on the wordmark row, so this is a
+          second, unlabelled control for the same action; and
+        - that hover bar lands exactly where the active row's corner curves
+          meet the page, drawing a line straight through the one detail this
+          rail is built around.
+      */}
     </Sidebar>
   )
 }

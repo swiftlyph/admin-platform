@@ -13,7 +13,7 @@
   silently never become real rules.
 */
 @import "./features/auth/login.css";
-@import "./components/sidebar.css";
+@import "./components/sidebar/sidebar.css";
 
 @custom-variant dark (&:is(.dark *));
 

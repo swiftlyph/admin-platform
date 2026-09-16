@@ -14,7 +14,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
-import type { NavItem, NavSection } from "@/components/nav-items"
+import type { NavItem, NavSection } from "./nav-items"
 
 /** One pinned destination, then collapsible sections. */
 export function NavMain({

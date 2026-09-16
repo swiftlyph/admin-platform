@@ -5,9 +5,9 @@ import {
   ArrowLeftRightIcon,
   TicketCheckIcon,
 } from "lucide-react"
-import { NavMain, NavMainCollapsed } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
-import { flattenNav, type NavItem, type NavSection } from "@/components/nav-items"
+import { NavMain, NavMainCollapsed } from "./nav-main"
+import { NavUser } from "./nav-user"
+import { flattenNav, type NavItem, type NavSection } from "./nav-items"
 import {
   Sidebar,
   SidebarContent,
@@ -58,7 +58,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar
       collapsible="icon"
       // Applied on the wrapper so it reaches the inner container that
-      // actually paints `bg-sidebar` — see components/sidebar.css.
+      // actually paints `bg-sidebar` — see ./sidebar.css.
       className="[&_[data-slot=sidebar-inner]]:rail-surface"
       {...props}
     >

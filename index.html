@@ -3,12 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Never leak an admin URL (which can carry record ids) to third parties. -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <!-- Internal console: never embeddable, and no search indexing. -->
+    <meta name="robots" content="noindex, nofollow" />
     <title>Gasa Admin Platform</title>
     <script>
-      // Applied before first paint to avoid a flash of the wrong theme.
-      // Storage key is namespaced per portal ("gasa-admin-theme", not
-      // the merchant portal's "gasa-theme") so both apps can run on
-      // localhost at once without overwriting each other's preference.
+      // Runs before first paint to avoid a flash of the wrong theme. The
+      // storage key is namespaced per portal so both apps can share a host.
       (function () {
         try {
           var stored = localStorage.getItem("gasa-admin-theme");

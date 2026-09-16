@@ -1,9 +1,5 @@
-/**
- * The organization a user belongs to. The platform admin is the neutral
- * operator above every tenant, so a Platform Admin's own `organization` is
- * always null — this type exists to read the field on other portals' users,
- * not to describe this portal's own session.
- */
+/** A tenant. Always null for a platform admin, who operates above every
+ *  tenant — typed here because the field is genuinely in the payload. */
 export type OrganizationKind = "merchant" | "company";
 
 export interface Organization {
@@ -12,21 +8,12 @@ export interface Organization {
   kind: OrganizationKind;
 }
 
-/**
- * The flat user object returned by /auth/login and /auth/me.
- *
- * Mirrors the merchant portal's AuthUser, which is the same endpoint and so
- * the same payload — including `merchant`, which is always null for a
- * platform admin. It is typed here rather than omitted because the field is
- * genuinely present in the response; pretending otherwise would make this
- * type lie about the contract.
- */
+/** The flat user object from /auth/login and /auth/me. */
 export interface AuthUser {
   id: number;
   name: string;
   email: string;
   roles: string[];
-  /** Always null for a platform admin — they operate the marketplace, they don't own a merchant. */
   merchant: Organization | null;
 }
 

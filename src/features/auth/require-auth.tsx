@@ -2,11 +2,8 @@ import type { PropsWithChildren } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "./store";
 
-/**
- * Guards a route for authed users only. By the time this renders, the app
- * root has already resolved "booting" to "guest" or "authed" (see
- * app/providers.tsx), so there's no third state to handle here.
- */
+/** Authed-only route guard. "booting" is resolved by providers.tsx before
+ *  this renders, so there is no third state to handle. */
 export function RequireAuth({ children }: PropsWithChildren) {
   const status = useAuthStore((s) => s.status);
   const location = useLocation();

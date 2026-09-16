@@ -1,19 +1,15 @@
 import { ApiError } from "@/lib/api/client";
 import type { ApiFieldErrors } from "@/lib/api/types";
 
-/** Mirrors the backend's login throttle window (429 "too_many_attempts" after
- *  the 6th attempt within a rolling minute) — matched here, not invented, so
- *  the UI doesn't invite a retry the server will just reject again. */
+/** Matches the backend's throttle window, so the UI never invites a retry
+ *  the server will reject. */
 export const RETRY_COOLDOWN_SECONDS = 60;
 
 const GENERIC_MESSAGE = "Something went wrong. Please try again.";
 
 /**
- * What the login form should show for a failed attempt.
- *
- * `fieldErrors` and `alert` are mutually exclusive by construction: a 422
- * marks up the offending inputs, everything else is a form-level message.
- * `cooldown` is only ever set by the throttle branch.
+ * `fieldErrors` and `alert` are mutually exclusive: a 422 marks up the
+ * inputs, everything else is a form-level message.
  */
 export interface LoginErrorPresentation {
   fieldErrors: ApiFieldErrors;
@@ -22,14 +18,11 @@ export interface LoginErrorPresentation {
 }
 
 /**
- * Maps a rejected login into what the user sees. Extracted from the page so
- * the copy for each backend failure mode lives in one readable table rather
- * than inside a mutation callback — and so it can be reasoned about (and
- * tested) without rendering a form.
+ * Maps a rejected login to what the user sees, so each backend failure mode
+ * has its copy in one readable table rather than inside a mutation callback.
  *
- * Deliberately total: an unrecognized ApiError falls through to the server's
- * own message, and a non-ApiError (a thrown string, a bug) still produces
- * something safe rather than leaking an internal error to the login screen.
+ * Total by design: an unrecognized ApiError falls back to the server message,
+ * and a non-ApiError still produces something safe.
  */
 export function toLoginErrorPresentation(error: unknown): LoginErrorPresentation {
   const base: LoginErrorPresentation = {

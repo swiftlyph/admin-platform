@@ -1,123 +1,39 @@
 /*
-  THE RAIL — the app shell's left nav.
+  The rail — the app shell's left nav.
 
-  Imported from src/index.css — NOT from a component. `@utility` is a Tailwind
-  at-rule, and Tailwind only expands it in the stylesheet it processes as an
-  entry point; a CSS file imported from a .tsx module is passed through by Vite
-  as a plain asset, which would ship these blocks as inert text.
-
-  Everything here is an echo of a device the app already owns (see
-  features/auth/login.css), not new ornament:
-
-  - the fading hairline is `vault-rule`;
-  - the lit active band is `login-submit`;
-  - the inset edge is `login-input`'s.
-
-  That is the whole brief: the console should look like one instrument, so the
-  rail is built from the login screen's vocabulary rather than a second one.
-  No brand hue, no decorative gradient — hairlines, value steps, one lit key.
+  Imported from src/index.css, not from a component: Tailwind only expands
+  `@utility` in the stylesheet it processes as an entry point.
 */
 
-/*
-  The rail's own surface.
-
-  The stock rail sits at oklch(0.97) against a 0.985 page — a 0.015 step, which
-  is no step at all. Two changes give it a body: it drops a little further from
-  the page, and a very low-contrast vertical wash runs down it so the surface
-  turns slightly in value instead of being one flat fill. The wash has no
-  repeat and no pattern; it reads as a material, not a texture.
-
-  The right edge is a real hairline plus a hair of inward shadow, so the page
-  looks like it sits *in front of* the rail rather than beside it.
-*/
-/*
-  The notch radius, and the row's own leading radius — one value so the curve
-  that carves the rail and the curve that opens it are visibly the same move.
-  0.6rem against a 36px row: enough to read as a carve, well short of a lozenge.
-*/
 :root {
-  /* The pill's corner radius. Half the 36px row height reads as fully
-     rounded, matching the reference's capsule. */
+  /* Pill corner radius — half the 36px row height, so fully rounded. */
   --rail-notch: 1.125rem;
-  /* How far the pill is inset from each side of the rail. */
   --rail-inset: 0.5rem;
-  /*
-    How far the active row's bulge pushes past the rail's right edge.
-
-    This is now the only number that shapes the effect. The rail and the pill
-    share a surface, so the bulge is not a chip laid on the rail — it is the
-    rail's own edge swelling outward around the active item and returning.
-  */
+  /* How far the active row overhangs the rail's right edge. */
   --rail-overhang: 0.75rem;
-  /*
-    The fillet: the reverse curve where the rail's edge turns IN to meet the
-    pill, above and below it.
-
-    Without these the pill reads as a convex tongue poking out of a straight
-    edge. With them the edge sweeps inward and the pill sits in a carved
-    notch — the rail appears to bend around the active item rather than to be
-    interrupted by it.
-
-    An earlier attempt at this failed because the rail and the pill were the
-    same colour, so there was no step for a fillet to be cut from and the
-    corner pieces showed as grey nubs. The rail is `--sidebar` and the pill
-    `--background` now, so there is a real edge to curve.
-  */
+  /* The concave corners where the rail's edge turns in to meet the pill. */
   --rail-fillet: 0.55rem;
 }
 
-@utility rail-surface {
-  /*
-    The rail takes `--sidebar` — the palette's own token for this surface.
-
-    It sits a step off the page in both themes (light 0.955 against a 0.985
-    page; dark 0.205 against 0.16), which is what gives the active row's
-    `--background` pill something to read against. While the rail matched the
-    pill exactly there was no seam to hide, but there was also nothing to see:
-    the active item registered as bold text alone.
-
-    A flat fill, deliberately — no wash. The active row is a shape cut into
-    this surface, and a gradient would make the value it is cut from drift
-    down the column, so the pill would match the rail at one height and not at
-    another.
-  */
-  background-color: var(--sidebar);
-  background-image: none;
-  /*
-    No border-right and no inward shadow here.
-
-    The primitive already paints one right edge on `sidebar-container`
-    (`group-data-[side=left]:border-r`, active because this app uses the
-    default `variant="sidebar"`). Painting a second one here stacked two lines
-    at the seam, and the inward shadow darkened the exact strip the active tab
-    has to disappear into. One edge, owned by the primitive, is what lets the
-    tab interrupt it cleanly.
-  */
-}
-
-.dark .rail-surface {
-  /*
-    Dark needs no override any more: `--sidebar` is defined per theme, so the
-    utility above already resolves to 0.205 here against a 0.16 page.
-
-    The step flips direction with the theme — in light the rail sits BELOW the
-    page, in dark ABOVE it — and the active row's `--background` pill follows,
-    reading as darker than the rail rather than lighter. Either way there is a
-    step, which is all the pill needs.
-
-    Kept as an empty-intent rule rather than deleted so the next person looking
-    for the dark treatment finds this note instead of assuming it was missed.
-  */
-  background-color: var(--sidebar);
-  background-image: none;
-}
-
 /*
-  A hairline that fades out at both ends rather than butting into the rail's
-  edges — the same gradient rule the login plate uses (`vault-rule`). A full-
-  width 1px line reads as a table border; a rule that dissolves reads as
-  drawn. Used to close the header and open the footer.
+  Flat fill, no wash: the active row is a shape cut from this surface, and a
+  gradient would make the value it is cut from drift down the column.
+
+  No border-right — the primitive already paints one on `sidebar-container`.
 */
+@utility rail-surface {
+  background-color: var(--sidebar);
+  background-image: none;
+}
+
+/* `--sidebar` is defined per theme, so light/dark need no separate values. */
+.dark .rail-surface {
+  background-color: var(--sidebar);
+  background-image: none;
+}
+
+/* A hairline that fades at both ends — a full-width line reads as a table
+   border. Closes the header and opens the footer. */
 @utility rail-rule {
   height: 1px;
   border: 0;
@@ -141,230 +57,84 @@
 }
 
 /*
-  The active band.
+  Overrides stated as real selectors, not utilities.
 
-  Was a flat fill; now it is a lit key, built the way login-submit is: a
-  top-lit gradient over `sidebar-primary` plus an inset highlight along the top
-  edge, so the band reads as a raised surface catching light rather than a
-  painted rectangle. A three-stop shadow (contact, mid, ambient) sits under it
-  — real objects cast a tight dark contact shadow *and* a wide soft one, and
-  the eye reads the pair as height.
-
-  Full-bleed is preserved: the band still spans the rail, and a brighter tick
-  on its leading edge gives the fill somewhere to start.
+  The primitive hard-codes `data-active:bg-sidebar-accent`,
+  `hover:bg-sidebar-accent` and friends in its base class strings. A competing
+  utility has the same specificity, so the winner is whichever Tailwind emits
+  later. Rules in this file land after the utility layer and win outright.
 */
-/*
-  The active row is a TAB joined to the page, not a chip sitting on the rail.
 
-  It takes the page's own `--background`, so the row and the content area to
-  its right are one continuous surface: the rail appears to open into the page
-  at exactly the item you're on. That is why there is no fill contrast to tune
-  here — the "you are here" signal is the join itself, plus weight on the
-  label, rather than a slab of ink.
-
-  The direction works in both themes without a hue, because the page and the
-  rail sit on opposite sides of each other in value: in light the page is
-  *lighter* than the rail (0.985 vs 0.97), in dark it is *darker* (0.16 vs
-  0.185). The row merges with the page either way.
-
-  It bleeds RIGHT rather than left — the join is on the page side — and the
-  leading corners are rounded so the tab reads as a shape growing out of the
-  rail instead of a full-width stripe.
-*/
-/*
-  Zero the sub-list's own insets.
-
-  SidebarMenuSub ships `mx-3.5 px-2.5`, and passing `mx-0 px-0` in className
-  does NOT reliably win: both are plain utilities of equal specificity, so the
-  one emitted later in the stylesheet takes it — and Tailwind orders by its own
-  scale, putting mx-3.5 (offset ~8774) after mx-0 (~8707). The sub-rows were
-  therefore sitting ~14px short of the rail's right edge, which is why the
-  active tab's seam-breaking strip landed mid-rail and Transactions /
-  Redemptions never blended while Dashboard did.
-
-  A real selector outranks a utility class, so the override is stated here
-  rather than in the component.
-*/
 [data-slot="sidebar-menu-sub"] {
   margin-inline: 0;
   padding-inline: 0;
 }
 
-/*
-  Sub-rows indent from the pill's own inset rather than from the rail edge, so
-  a child pill still clears the panel on both sides.
-*/
 [data-slot="sidebar-menu-sub"] [data-slot="sidebar-menu-sub-button"] {
   padding-left: calc(0.75rem + var(--rail-inset));
 }
 
-/*
-  The active row's surface — stated as a real selector, not a utility.
-
-  Both `SidebarMenuButton` and `SidebarMenuSubButton` hard-code
-  `data-active:bg-sidebar-accent` in their base class strings, so every active
-  row carries it whether this app passes it or not. A competing
-  `data-active:rail-active` utility is the SAME specificity, which makes the
-  winner whichever Tailwind happens to emit later — a coin flip this lost,
-  leaving the row painted `--sidebar-accent`: a tint of the RAIL
-  (light 0.935 vs rail 0.955) rather than the page (0.985). That is why the
-  tab never matched the content area.
-
-  Rules in this file land after Tailwind's utility layer, so keying off the
-  attribute wins deterministically instead of by emission order.
-*/
 .rail-row[data-active="true"],
 .rail-row[data-active="true"]:hover,
 .rail-row[data-active="true"]:active,
 .rail-row[data-active="true"]:focus-visible {
   background-color: var(--background);
   background-image: none;
+  color: var(--foreground);
 }
 
 /*
-  UN-CLIPPING, so the notch can exist.
+  Un-clipping, so the overhang can exist.
 
-  Two clips in the primitive would each erase this effect on their own, and
-  both have to go. They are stated here as real selectors because both live in
-  the primitive's own base class strings, where a utility of equal specificity
-  would only win by Tailwind's emission order — the coin flip this file's
-  other overrides already document losing.
-
-  1. `sidebar-content` carries `overflow-auto` (scrolling long nav lists),
-     which crops the pill's overhang to a flat edge at the rail boundary.
-
-     `overflow-x: visible` alongside `overflow-y: auto` does NOT work here:
-     when one axis is `visible` and the other is not, the spec computes the
-     `visible` axis to `auto`, so the pair silently becomes auto/auto and the
-     overhang is clipped exactly as before.
-
-     So the clip is dropped outright. This app's nav is five destinations in
-     two sections — it does not overflow a viewport, and the primitive's
-     `flex-1 min-h-0` still keeps the footer pinned. If the nav ever grows
-     long enough to need scrolling, the notch and a scroll container are
-     genuinely incompatible on the same element and the scroll has to move to
-     an inner wrapper.
-  2. `sidebar-menu-button` carries `overflow-hidden` (it truncates long
-     labels), which clips the row's OWN ::before/::after — the fillets would
-     never paint. Truncation is preserved by the primitive's
-     `[&>span:last-child]:truncate`, which does the real work; the row-level
-     clip is belt-and-braces that the notch cannot coexist with.
+  `sidebar-content` carries `overflow-auto`, which crops the overhang flat at
+  the rail boundary. `overflow-x: visible` does not help: when one axis is
+  visible and the other is not, the spec computes both to auto. So the clip is
+  dropped — this nav is five destinations and does not scroll. If it ever
+  grows, the scroll has to move to an inner wrapper.
 */
 [data-slot="sidebar-content"] {
   overflow: visible;
-}
-
-/*
-  The rail paints ABOVE the content area, so the bulge is visible.
-
-  `sidebar-container` is `fixed … z-10`, and `SidebarInset` is a later sibling
-  in the same stacking context with its own background. Later-painted wins at
-  equal z-index, so the page was drawing straight over the 0.75rem of pill that
-  extends past the rail — which is why the active row looked perfectly flush
-  with the rail's edge instead of swelling past it. The overhang was always
-  rendering; it was just underneath.
-
-  Raising the rail is enough on its own: nothing in this shell overlays the nav
-  (the header is inside the inset, not above the rail), so there is no element
-  that legitimately needs to cover it.
-*/
-[data-slot="sidebar-container"] {
-  z-index: 20;
-}
-
-/*
-  The rail's own right border is dropped entirely.
-
-  `sidebar-container` paints a 1px `border-r` down its full height (measured at
-  x=255–256, `oklch(0.9 0.005 260)`). The active pill overhangs to x=267 and so
-  covers that line across its own 36px — but the fillets sit at x=243–252, a
-  full 3px INSIDE the border, so they cover nothing. The result is a short grey
-  stub of border hanging above and below the pill, right where the corner curve
-  is meant to read as a clean edge. That is the line in the screenshot.
-
-  A border cannot be interrupted — it is one line on one box — so the choice is
-  to keep it and accept the stub, or drop it and let the rail's edge be defined
-  by the value step between `--sidebar` and the page. The step is what actually
-  separates the two regions (the border was only ever reinforcing it), and the
-  fillets already draw the curve at the boundary, so dropping it loses nothing
-  and removes the stub.
-*/
-[data-slot="sidebar-container"]:has(.rail-row[data-active="true"]) {
-  border-right-color: transparent;
 }
 
 .rail-row[data-active="true"] {
   overflow: visible;
 }
 
-/*
-  The top-level row must be allowed to OVERHANG, like the sub-rows are.
+/* The rail paints above the page, or the inset's background covers the
+   overhang. Nothing in this shell legitimately overlays the nav. */
+[data-slot="sidebar-container"] {
+  z-index: 20;
+}
 
-  Measured in the browser: the rail's right edge is at x=255. An active sub-row
-  (Merchants) ends at 268 — 13px past it — while an active top-level row
-  (Dashboard) ends at exactly 255. Both carry the same `margin-right: -12px`,
-  but Dashboard is width-constrained by its flex parent, so the negative margin
-  only pulls it TO the edge instead of past it.
+/* A border is one line on one box and cannot be interrupted, so it is dropped
+   while a row is active. The value step between rail and page defines the
+   edge; the fillets draw the curve. */
+[data-slot="sidebar-container"]:has(.rail-row[data-active="true"]) {
+  border-right-color: transparent;
+}
 
-  The fillets sit 12px in from each pill's own padding box, so on Merchants
-  they land at 256 (flush with the rail) and on Dashboard at 243 — twelve
-  pixels inside it. Same CSS, different pill width; that difference alone is
-  what made one row's corners look correct and the other's inset.
-
-  The sub-rows escape the constraint because `[data-slot="sidebar-menu-sub"]`
-  is padding-zeroed above, which leaves them room to grow into. The top-level
-  list has no such rule, so the width is released here instead.
-*/
+/* Top-level rows are width-constrained by their flex parent, so the negative
+   margin alone only pulls them to the edge, not past it. Sub-rows escape this
+   via the padding-zeroing above. */
 [data-slot="sidebar-menu-item"]:has(> .rail-row[data-active="true"]) {
   width: calc(100% + var(--rail-overhang));
 }
 
 /*
-  THE FILLETS — the two concave corners that invert the pill's ends.
+  The fillets — two concave corners that invert the pill's ends.
 
-  Each is a block of RAIL colour with a circle of PAGE colour bitten out of the
-  corner facing the pill. That leaves a quarter-circle of rail hugging the
-  capsule's end, so the rail's edge appears to sweep inward around the active
-  item instead of running straight past a tongue stuck onto it.
+  Each is a block of rail colour with a circle of page colour bitten out of the
+  corner facing the pill, leaving a quarter-circle of rail hugging the capsule.
+  The rail's edge then appears to sweep inward around the active item.
 
-  The colours are the whole reason this works now. The last attempt drew these
-  while the rail and the pill were both `--background`: with no value step
-  there was nothing for a fillet to be cut from, and the pieces showed as grey
-  nubs. The rail is `--sidebar` and the pill `--background` now, so the bite
-  reads as a real edge.
-
-  Anchored on the corner NEAREST the pill, at a radius equal to the box, so the
-  page-coloured circle occupies the corner the capsule meets and the rail
-  quarter fills the rest. The hard stop (same length twice) keeps the arc crisp
-  — a soft ramp would read as a shadow rather than a cut.
-
-  They sit at the pill's own right edge, INCLUDING its overhang, so the curve
-  meets the capsule where it actually ends rather than at the rail boundary.
+  Offset by the overhang: an absolutely positioned child resolves against the
+  pill's padding box, which extends past the rail, so `right: 0` would land out
+  in the page with no rail to cut from.
 */
 .rail-row[data-active="true"]::before,
 .rail-row[data-active="true"]::after {
   content: "";
   position: absolute;
-  /*
-    Offset by `var(--rail-overhang)`, so the fillets land on the RAIL's edge.
-
-    The pill's padding box extends `--rail-overhang` past the rail boundary
-    (that overhang is what makes it merge into the page), and an absolutely
-    positioned child resolves against that padding box. So `right: 0` is not
-    the rail's edge — it is the pill's outermost edge, out in the page, which
-    is where these two squares were sitting with no rail behind them to be cut
-    from.
-
-    Pulling them back by the overhang puts them exactly at the rail boundary,
-    in the corner where rail meets pill — the only place a concave sweep has
-    anything to bite into.
-
-    This only resolves correctly when the ROW is the containing block. The
-    top-level rows sit in a `SidebarMenuItem`, which the primitive ships as
-    `relative` — so without the rule below, Dashboard's fillets anchored to
-    that wrapper instead of to its pill and landed inset from the rail edge,
-    while the sub-rows (whose wrapper chain is inset-zeroed) looked correct.
-  */
   right: var(--rail-overhang);
   width: var(--rail-fillet);
   height: var(--rail-fillet);
@@ -372,22 +142,10 @@
   background-color: var(--sidebar);
 }
 
-/* Above the pill: the page circle sits at the BOTTOM-RIGHT, the corner the
-   capsule's top end meets. */
+/* The radius is the box's own size, not 100%: a percentage resolves against
+   the farthest corner, which would fill the whole block. */
 .rail-row[data-active="true"]::before {
   bottom: 100%;
-  /*
-    The radius is `var(--rail-fillet)` — the box's own size — NOT `100%`.
-
-    In a radial-gradient a percentage resolves against the farthest corner, so
-    `100%` put the stop beyond every edge: the page colour filled the entire
-    block and the `transparent` stop got no area at all. Both fillets were
-    painting as solid `--background` squares, invisible against the page.
-
-    At `--rail-fillet` the circle exactly meets the two edges adjacent to its
-    anchor corner, so it cuts a true quarter-disc out of the rail-coloured
-    block — the concave sweep.
-  */
   background-image: radial-gradient(
     circle at top left,
     transparent 0,
@@ -396,10 +154,8 @@
   );
 }
 
-/* Below the pill: mirrored — the bite is at the TOP-RIGHT. */
 .rail-row[data-active="true"]::after {
   top: 100%;
-  /* Mirrored, with the same radius correction as ::before above. */
   background-image: radial-gradient(
     circle at bottom left,
     transparent 0,
@@ -408,82 +164,32 @@
   );
 }
 
-/*
-  The collapsed icon rail keeps none of this.
-
-  At 3rem wide the rail is a column of square targets; a capsule hanging
-  0.75rem past its edge would be wider than the margin it sits in, and the
-  fillets would have no rail left to curve against. The collapsed state goes
-  back to a plain filled square — which is what the reference's own narrow
-  variants do.
-*/
+/* Collapsed rail: no room for an overhang, and no rail left for a fillet to
+   curve against. Back to a plain rounded square. */
 [data-collapsible="icon"] .rail-row[data-active="true"] {
   margin-right: 0;
   padding-right: 0;
   overflow: hidden;
-  /*
-    Symmetric again at icon width. The left-rounded / right-square shape only
-    makes sense where the pill meets the page; on a 3rem column it has no page
-    edge to join, so a flat right side would just look like a clipped chip.
-  */
   border-radius: var(--rail-notch);
 }
 
-/*
-  No fillets at icon width. The row has no overhang there, so there is no
-  capsule end for the rail to curve around — the two blocks would just sit on
-  the rail as a pair of marks.
-*/
 [data-collapsible="icon"] .rail-row[data-active="true"]::before,
 [data-collapsible="icon"] .rail-row[data-active="true"]::after {
   content: none;
 }
 
-
 /*
-  Interrupting the rail's right edge.
+  The bulge.
 
-  `sidebar-container` paints one hard `border-r` down the full height of the
-  rail. A border is a single line on one box — it cannot bow outward — so the
-  bulge has to cover it rather than bend it: the active row overhangs PAST the
-  border and, being painted later, hides the 1px line across its own height.
+  The active row extends past the rail's right boundary with its left end
+  rounded and its right square, so the rail's edge appears to swell outward
+  around it. The negative margin lets it overhang without widening the rail;
+  the matching padding keeps the label in place.
 
-  The edge stays intact everywhere else on the rail, which is what makes the
-  interruption read as the silhouette swelling rather than as a broken line.
+  Square on the right: a fully rounded capsule would leave a sliver of rail
+  between pill and page that no fillet can bridge.
 */
-
-/*
-  The label, for the same reason as the surface.
-
-  Both button bases also hard-code `data-active:text-sidebar-accent-foreground`
-  (and the sub-button adds `[&>svg]:text-sidebar-accent-foreground`), which is
-  the accent's ink — tuned for a tinted rail chip, not for the page surface the
-  tab actually shows. Hover and press states carry their own copies, so each
-  one is pinned here rather than left to win or lose on emission order.
-*/
-.rail-row[data-active="true"],
-.rail-row[data-active="true"]:hover,
-.rail-row[data-active="true"]:active {
-  color: var(--foreground);
-}
-
 @utility rail-active {
-  /*
-    THE BULGE.
-
-    The active row IS the rail here — same surface, same colour — so this rule
-    carries no fill of its own beyond matching that surface, and no edge. What
-    marks the row is its silhouette: it extends past the rail's right boundary
-    and its ends are fully rounded, so the rail's edge appears to swell outward
-    around the active item and return.
-
-    The negative right margin is what lets it overhang without widening the
-    rail — the primitive's container keeps its width, so nothing reflows — and
-    the matching right padding keeps the label from drifting with it.
-
-    No box-shadow. A shadow would imply the pill floats above the rail, which
-    is precisely the reading this construction exists to avoid.
-  */
   background-color: var(--background);
   background-image: none;
   box-shadow: none;
@@ -491,99 +197,15 @@
   z-index: 1;
   margin-right: calc(var(--rail-overhang) * -1);
   padding-right: calc(0.75rem + var(--rail-overhang));
-  /*
-    Rounded on the LEFT only; the right edge is square and flush with the page.
-
-    A fully rounded capsule curves away from the page at its right end, which
-    leaves a sliver of rail between pill and page that no fillet can bridge —
-    the pill then reads as a lozenge floating in a gap rather than as a shape
-    merging into the content area. Squaring that edge is what lets the pill
-    join the page, and the concave corners above and below are then the only
-    curves in the silhouette: the rail's edge sweeping in to meet it.
-  */
   border-radius: var(--rail-notch) 0 0 var(--rail-notch);
 }
 
-/*
-  The two fillets.
-
-  Each is a square block of the PAGE's colour with one corner rounded, parked
-  just outside the pill's rounded end and tight against the rail's right edge.
-  The rounded corner faces the pill, so the eye reads a continuous edge that
-  leaves the rail, curves around the capsule, and returns — the rail appearing
-  to bend rather than to be interrupted.
-
-  Drawn in `--background` (the page colour, which is also the pill's fill)
-  rather than in the rail's colour: these are the page intruding into the rail,
-  which is the same story the pill itself tells. Painting them in the rail's
-  tone would fill the gap but read as two grey nubs.
-
-  `box-shadow` sprays the same colour outward by a hair to close the seam
-  against the pill's antialiased edge — without it a 1px hairline of rail
-  shows in the joint at some zoom levels.
-*/
-/*
-  NO FILLETS.
-
-  Four passes were spent trying to draw two concave corner patches that would
-  hide the seam between a grey rail and a light pill: a rounded square, then a
-  radial-gradient anchored on the near corner, then one anchored on the far
-  corner. Each rendered as a pair of small grey blocks above and below the
-  pill, because a separate box butted against a shape it is not part of always
-  shows its own edges.
-
-  The seam is gone now — the rail and the pill are the same surface (see
-  `rail-surface`) — so there is nothing left to patch. The bulge is drawn by
-  the row's own geometry alone, which is what makes it one continuous
-  silhouette rather than three boxes pretending to be one.
-*/
-
-.dark .rail-row:hover:not([data-active="true"]) {
-  /* The rail is dark, so the hover tick lifts in value instead of dropping.
-     The fill is suppressed here for the same reason as in light — see the
-     light-mode hover rule below. */
-  background-color: transparent;
-  background-image: none;
-  box-shadow: inset 2px 0 0 0 color-mix(in oklch, var(--sidebar-foreground) 26%, transparent);
-}
-
 .dark .rail-active {
-  /*
-    Same as light: a solid fill and no edge. In dark the page is darker than
-    the rail, so the tongue reads as a shape cut forward out of the panel.
-  */
   background-color: var(--background);
   box-shadow: none;
 }
 
-/*
-  Hover on an inactive row. A flat tint at this value is nearly invisible on
-  the washed rail, so hover gets the same leading tick as the active band —
-  at a fraction of the weight. The row announces itself on the edge the eye is
-  already tracking, which is what makes the list feel responsive rather than
-  merely clickable.
-*/
-/*
-  A nav row.
-
-  The trailing end is rounded while the leading edge stays flush to the rail:
-  the fill still runs the full width, but it reads as a drawn shape rather
-  than a table cell with square corners. That squareness was most of what made
-  the active state feel stiff.
-
-  Motion is eased rather than linear and runs a little longer than a UI tick,
-  so a row settles into its state instead of snapping. `transform` is included
-  so the hover nudge below interpolates rather than jumping.
-*/
 @utility rail-row {
-  /*
-    Fully rounded on all four corners — a capsule, not a band. The row sits
-    INSIDE the rail with a margin on both sides (see --rail-inset), so every
-    corner is visible and the rail's own right edge stays an unbroken line.
-
-    Stated as the shorthand because the primitive's base sets `rounded-xl`;
-    anything left unstated would keep its ~7.7px.
-  */
   border-radius: var(--rail-notch);
   transition:
     background-color 180ms cubic-bezier(0.22, 0.61, 0.36, 1),
@@ -593,46 +215,23 @@
 }
 
 /*
-  Hover on an inactive row: the same leading tick as the active band at a
-  fraction of the weight, plus a hair of travel toward the content. The row
-  answers on the edge the eye is already tracking, which is what makes the
-  list feel alive rather than merely clickable.
+  Hover and press suppress the primitive's fill rather than tinting it: that
+  token is a tint of the rail, which made hover heavier than the active row.
+  The leading tick carries both states instead.
 */
 .rail-row:hover:not([data-active="true"]) {
-  /*
-    The fill is SUPPRESSED, not tinted.
-
-    `SidebarMenuButton` and `SidebarMenuSubButton` both hard-code
-    `hover:bg-sidebar-accent` in their base class strings. That token is a tint
-    of the rail (light 0.935 against a 0.985 rail), which made hover a solid
-    grey capsule — heavier than the active row, which carries no fill at all
-    now that it reads as the rail's own edge swelling outward. Hover was
-    out-shouting "you are here", which is exactly backwards.
-
-    Stated as a real selector rather than a competing utility: a plain
-    `hover:bg-transparent` class ties with the primitive's on specificity, and
-    the winner is then whichever Tailwind emits later — the coin flip this file
-    has already documented losing twice (see the active-surface and sub-list
-    notes above).
-
-    The leading tick below is left to carry hover on its own. It marks the edge
-    the eye is already tracking, and being a shadow rather than a fill it can
-    never compete with the active row's silhouette.
-  */
   background-color: transparent;
   background-image: none;
   box-shadow: inset 2px 0 0 0 color-mix(in oklch, var(--sidebar-foreground) 18%, transparent);
   transform: translateX(1px);
 }
 
-/*
-  Press, for the same reason as hover.
+.dark .rail-row:hover:not([data-active="true"]) {
+  background-color: transparent;
+  background-image: none;
+  box-shadow: inset 2px 0 0 0 color-mix(in oklch, var(--sidebar-foreground) 26%, transparent);
+}
 
-  The primitive carries `active:bg-sidebar-accent` as well, so without this a
-  row still flashes the grey capsule on mouse-down — the exact fill just
-  removed from hover, reappearing for the length of a click. The press signal
-  is the tick deepening instead, which keeps every state on one device.
-*/
 .rail-row:active:not([data-active="true"]) {
   background-color: transparent;
   background-image: none;
@@ -643,16 +242,6 @@
   box-shadow: inset 2px 0 0 0 color-mix(in oklch, var(--sidebar-foreground) 42%, transparent);
 }
 
-/*
-  No travel on the active row. It is joined to the page; a row that shifts
-  would break the seam it exists to make.
-*/
-
-/*
-  Motion is decoration here — every state is already legible from colour and
-  the leading tick alone. Nothing in this codebase guarded for reduced motion
-  before, so the guard is introduced with the motion that needs it.
-*/
 @media (prefers-reduced-motion: reduce) {
   .rail-row {
     transition-duration: 1ms;
@@ -663,44 +252,16 @@
   }
 }
 
-/*
-  The active row's ICON.
-
-  SidebarMenuSubButton paints its glyph with `[&>svg]:text-sidebar-accent-
-  foreground` — a child selector, so it outranks any `color` set on the button
-  itself. On an inactive row that is correct; on the near-ink active band it
-  left a dark-slate icon sitting on dark ink, which is what made the row read
-  muddy rather than crisp. The label inverted; the icon did not.
-
-  Stated here rather than as a utility class because it has to beat that child
-  selector, and a plain class in the same layer would only tie with it.
-*/
+/* Beats the sub-button's `[&>svg]:text-sidebar-accent-foreground` child
+   selector, which a utility class could only tie with. */
 .rail-row[data-active="true"] > svg,
 .rail-row[data-active="true"] svg {
-  /*
-    The tab is the page's surface, not an inverted band, so the glyph takes the
-    page's own foreground. This still has to out-rank SidebarMenuSubButton's
-    `[&>svg]:text-sidebar-accent-foreground` child selector, which is why it is
-    written as a selector rather than a utility class.
-  */
   color: var(--foreground);
   opacity: 1;
 }
 
-/*
-  A section heading.
-
-  Replaces the mono `console-label` here. That device was drawn for field
-  labels on the login plate, where it has room; in a 16rem rail, tracked
-  uppercase mono is the widest, heaviest thing on screen and it fights the
-  sans item labels directly beneath it — three competing treatments in one
-  column.
-
-  This keeps the heading quiet and unmistakably a *heading*: the same sans as
-  the rows, a step smaller, medium weight, and just enough tracking to read as
-  set rather than shrunk. Mono is then spent in exactly one place — the GASA
-  wordmark — which is what makes it read as a signature instead of a texture.
-*/
+/* Sans, not the mono `console-label`: in a 16rem rail tracked uppercase mono
+   is the heaviest thing on screen and fights the item labels beneath it. */
 @utility rail-heading {
   font-family: var(--font-sans);
   font-size: 0.6875rem;
@@ -708,23 +269,15 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-feature-settings: "cv05" 1;
-  /* A heading is a label, not a target: no rounded trailing end, no travel. */
   border-radius: 0;
 }
 
+/* A heading is a label, not a target — no fill, tick, or travel. The
+   primitive's `data-open:hover:bg-sidebar-accent` fires here because every
+   section starts open, so it is pinned as a real selector. */
 .rail-heading:hover,
 .rail-heading:active,
 .rail-heading[data-state="open"]:hover {
-  /*
-    A heading is a label, not a target: no tick, no travel, and no fill.
-
-    nav-main.tsx passes `hover:bg-transparent` on this row, but that is a plain
-    utility of the same specificity as the primitive's `hover:bg-sidebar-accent`
-    — and the primitive also carries `data-open:hover:bg-sidebar-accent`, which
-    fires on exactly these rows because every section starts open. Both are
-    pinned here as real selectors so the heading can never take a fill by
-    emission order.
-  */
   background-color: transparent;
   background-image: none;
   transform: none;

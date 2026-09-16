@@ -14,25 +14,11 @@ interface LoginFieldProps {
 }
 
 /**
- * A machined slot rather than a rounded web input.
+ * Standalone rather than built on the shadcn field/input primitives: this
+ * control carries the login screen's own visual language (see login.css).
  *
- * Deliberately standalone rather than built on the shadcn `field`/`input`
- * primitives: this control carries the login screen's own visual language
- * (see login.css), and wrapping the stock components only to override most
- * of their classes would obscure that rather than share anything.
- *
- * Three details carry the craft:
- *
- * - the radius matches the plate's own (0.375rem against the plate's
- *   0.55rem), so the control reads as cut into the surface rather than
- *   dropped onto it. A pill-soft field on a squared plate is the single
- *   fastest way to make a considered layout look generic;
- * - the label is the console's mono micro-label, matching the header
- *   wordmark and the rule labels — one typographic device, used everywhere;
- * - label and error share one row, so the field height never changes
- *   between valid and invalid and the form does not jump when validation
- *   runs. The error changes colour, not the label, so the field stays
- *   readable while it is being corrected.
+ * Label and error share one row, so the field height never changes between
+ * valid and invalid and the form does not jump when validation runs.
  */
 export function LoginField({
   label,
@@ -49,9 +35,7 @@ export function LoginField({
   const errorId = `${id}-error`;
   const [revealed, setRevealed] = useState(false);
 
-  // Revealing swaps the input's type; everything else about the field is
-  // unchanged, so the control never alters the field's height or its
-  // label/error row.
+  // Only the type changes, so revealing never alters the field height.
   const inputType = revealable && revealed ? "text" : type;
 
   return (
@@ -82,9 +66,7 @@ export function LoginField({
           }`}
         />
         {revealable && (
-          // Inside the field rather than beside it: a control that acts on
-          // the input belongs on the input. Kept quiet until hover so it
-          // doesn't compete with the value being typed.
+          // A control that acts on the input belongs on it; quiet until hover.
           <button
             type="button"
             onClick={() => setRevealed((r) => !r)}

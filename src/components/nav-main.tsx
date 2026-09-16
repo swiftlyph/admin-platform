@@ -16,14 +16,7 @@ import {
 } from "@/components/ui/sidebar"
 import type { NavItem, NavSection } from "@/components/nav-items"
 
-/**
- * The nav body: one pinned top-level destination, then collapsible sections.
- *
- * Sections open and close rather than sitting permanently expanded, so the
- * rail shows its shape (what kinds of things exist here) before its contents.
- * A section holding the current route starts open — the rail must never hide
- * where you already are.
- */
+/** One pinned destination, then collapsible sections. */
 export function NavMain({
   pinned,
   sections,
@@ -46,15 +39,8 @@ export function NavMain({
   )
 }
 
-/**
- * Collapsed (icon-width) rail: sections have no meaning without their labels,
- * and SidebarMenuSub hides itself there, so every destination is flattened
- * into one icon column. Swapped by CSS rather than JS, so no resize listener
- * or state is involved.
- *
- * Keeps the primitive's own `p-2` — at icon width the rail is a column of
- * square targets, and a full-bleed row would leave the icons no margin.
- */
+/** Collapsed rail: sections mean nothing without labels, so every
+ *  destination flattens into one icon column. Swapped by CSS, not JS. */
 export function NavMainCollapsed({ items }: { items: NavItem[] }) {
   return (
     <SidebarGroup className="hidden group-data-[collapsible=icon]:block">
@@ -67,51 +53,15 @@ export function NavMainCollapsed({ items }: { items: NavItem[] }) {
   )
 }
 
-/**
- * SidebarGroup ships `p-2`, which insets every row 8px from both rail edges.
- * That inset is what made the active chip read as a floating pill. Dropping
- * the group's horizontal padding lets a row span the full rail width, and the
- * rows below carry `px-3` of their own so the *text* sits where it always did
- * — only the chip's edges move.
- */
-/*
-  The rows sit inside the rail rather than spanning it: the active pill needs
-  a margin on both sides to read as an object floating on the panel, which is
-  what the reference does. `px-2` is the primitive's own group padding.
-*/
-/*
-  Left padding only.
-
-  `px-2` put 8px on BOTH sides, so every row stopped 8px short of the rail's
-  right edge. The active row's overhang then spent most of itself just crossing
-  that padding, leaving it looking flush with the rail instead of merging into
-  the page — and with no real junction between pill and page, the concave
-  corners had nothing to curve around.
-
-  Dropping the right side lets the row reach the boundary; `--rail-overhang`
-  carries it past, which is what the fillets are cut against.
-*/
+/* Left padding only: the row must reach the rail's right edge so
+   `--rail-overhang` can carry the active pill past it. */
 const GROUP_FULL_BLEED = "pl-2 pr-0"
 
-/**
- * A full-bleed row: square on the left edge so the fill meets the rail, and
- * `px-3` of content inset so labels keep their old position.
- */
-/*
-  Content inset within each row. The pill's own shape and margin come from
-  `rail-row` / the group padding (see sidebar.css).
-*/
+/* Content inset within each row; the pill's shape comes from `rail-row`. */
 const ROW_FULL_BLEED = "px-3 text-[0.8125rem] tracking-[0.005em]"
 
-/**
- * The active row is a TAB joined to the page: it takes the page's own
- * background, so the rail appears to open into the content area at the item
- * you're on. See `rail-active` in sidebar.css for how the seam is made.
- *
- * Nothing here sets a fill or an inverted text colour any more — the row's
- * surface IS the page's surface, and the label simply gains weight. Shared by
- * top-level rows and sub-rows so "you are here" reads the same at both depths.
- */
+/* The active row takes the page's own background — see `rail-active`.
+   Shared by top-level and sub-rows so "you are here" reads the same. */
 const ACTIVE_BAND =
   "rail-row data-active:rail-active data-active:text-foreground data-active:hover:text-foreground"
 
@@ -143,18 +93,11 @@ function NavLeafItem({ item, collapsed }: { item: NavItem; collapsed?: boolean }
 
 function NavSectionItem({ section }: { section: NavSection }) {
   return (
-    // Open by default. When no section holds the current route, leaving one
-    // open and one shut is an arbitrary asymmetry the user has to interpret;
-    // showing everything is the honest resting state for a five-item rail.
+    // Open by default: with no section holding the route, one open and one
+    // shut is an arbitrary asymmetry.
     <Collapsible defaultOpen className="group/collapsible">
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
-          {/*
-            The section header is a control, not a destination — no `asChild`
-            Link, and it never takes the active band. It carries the section's
-            name in the console's mono micro-label, which separates a heading
-            from a row by *kind* of type rather than by size alone.
-          */}
           <SidebarMenuButton
             tooltip={section.label}
             aria-label={`${section.label} section`}
@@ -166,13 +109,6 @@ function NavSectionItem({ section }: { section: NavSection }) {
         </CollapsibleTrigger>
 
         <CollapsibleContent>
-          {/*
-            No indent rule. The stock sub-list hangs its children off a left
-            border at `mx-3.5`, which cannot coexist with a full-bleed active
-            band — the band would start to the right of the rail edge. Depth is
-            carried by the icon column instead: sub-rows keep the same `px-3`
-            inset, and the section heading above them is what marks the level.
-          */}
           <SidebarMenuSub className="mx-0 gap-0.5 border-none px-0">
             {section.items.map((item) => (
               <NavSubItem key={item.title} item={item} />
@@ -192,10 +128,8 @@ function NavSubItem({ item }: { item: NavItem }) {
       <SidebarMenuSubButton
         asChild
         isActive={isActive}
-        // h-8 against the top level's h-9: a half-step down in scale says
-        // "child of the heading above" without an indent rule to say it.
-        // Sub-rows sit at the same weight as top-level ones when active, so
-        // "you are here" never changes character with depth.
+        // Same height and active weight as top-level rows, so depth never
+        // changes the "you are here" character.
         className={`h-9 translate-x-0 font-normal data-active:font-medium ${ROW_FULL_BLEED} ${ACTIVE_BAND}`}
       >
         <Link to={item.url}>

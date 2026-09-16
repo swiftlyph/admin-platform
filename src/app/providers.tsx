@@ -17,16 +17,12 @@ const queryClient = new QueryClient({
   },
 });
 
-// Wired once, at module load: session.ts's onUnauthorized handler needs both
-// of these but shouldn't otherwise depend on the router or query client.
+// session.ts needs these but must not depend on the router or query client.
 setQueryClientClear(() => queryClient.clear());
 setSessionNavigator((path) => router.navigate(path));
 
-/**
- * Gates the whole router behind the boot check: while status is "booting"
- * every route — guarded or not — renders a loader instead, so a refresh on
- * an authed session never flashes /login first.
- */
+/** Holds the whole router behind the boot check, so a refresh on an authed
+ *  session never flashes /login first. */
 function AuthGate() {
   useAuthBoot();
   const status = useAuthStore((s) => s.status);

@@ -70,13 +70,11 @@ export const useAuthStore = create<AuthState>((set) => ({
 registerTokenGetter(() => useAuthStore.getState().token);
 
 /**
- * The single source of truth for role-based routing, so RequirePlatformAdmin
- * and the login page can never disagree about who belongs inside /app.
+ * The single source of truth for role-based routing, so the guard and the
+ * login page can never disagree.
  *
- * This is a UI guard, not a security boundary — it decides what to render,
- * while the backend remains responsible for authorizing every /platform/*
- * request. Roles are never persisted (see `user` above), so this always
- * reads a value freshly rehydrated from /auth/me rather than from storage.
+ * A UI guard, not a security boundary — the backend authorizes every
+ * /admin/* request. Fails closed when `roles` is absent.
  */
 export function selectIsPlatformAdmin(state: AuthState): boolean {
   return state.user?.roles?.includes(PLATFORM_ADMIN_ROLE) ?? false;

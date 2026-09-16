@@ -19,13 +19,10 @@ export function setQueryClientClear(fn: ClearQueryCache): void {
 export const SESSION_EXPIRED_MESSAGE =
   "Your session has expired. Please sign in again.";
 
-// Registered once, at module load: any 401 that isn't explicitly suppressed
-// (see RequestOptions.suppressUnauthorized) means the token is no longer
-// valid, wherever in the app it happened.
+// Any un-suppressed 401, anywhere, means the token is no longer valid.
 registerOnUnauthorized(() => {
   const { status, clear, setSessionNotice } = useAuthStore.getState();
-  // Idempotent: if we're already signed out, a second in-flight request's
-  // 401 shouldn't clear the cache or navigate a second time.
+  // Idempotent: two in-flight 401s must not clear and navigate twice.
   if (status === "guest") return;
 
   clear();

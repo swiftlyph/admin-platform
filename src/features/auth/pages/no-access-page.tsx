@@ -5,15 +5,12 @@ import { useAuthStore, selectIsPlatformAdmin } from "../store";
 import { useLogout } from "../use-logout";
 
 /**
- * `/no-access` — an authed account that isn't a platform admin. The
- * counterpart to the merchant portal's /suspended, but the cause is
- * different: nothing is wrong with the account, it simply isn't an
- * operator account, so the copy points at the right portal rather than
- * implying a problem to resolve.
+ * `/no-access` — an authed account without the operator role. The cause is a
+ * wrong account, not a problem to fix, so the copy points at the right portal
+ * rather than implying one.
  *
- * Self-guards both other directions (guest -> /login, platform admin ->
- * /app) so this page can't be linked into by someone who doesn't belong on
- * it, mirroring how SuspendedPage guards itself.
+ * Self-guards both directions so it cannot be linked into by someone who
+ * doesn't belong on it.
  */
 export function NoAccessPage() {
   const status = useAuthStore((s) => s.status);

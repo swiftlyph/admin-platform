@@ -6,14 +6,10 @@ import { useMe } from "@/features/auth/use-me"
 import { useLogout } from "@/features/auth/use-logout"
 
 /**
- * Footer identity + sign out.
- *
- * Laid out as a plain flex row rather than SidebarMenuButton +
- * SidebarMenuAction. That pairing positions the action `absolute top-1.5
- * right-1` with size-specific `top` overrides, so the button sat high and 4px
- * from the rail edge while every nav row sits at 8px — two different left/right
- * insets in one column. As siblings in a flex row the avatar and the button
- * share one baseline and one inset, and the alignment holds at any row height.
+ * Footer identity + sign out, laid out as a flex row rather than
+ * SidebarMenuButton + SidebarMenuAction: that pairing positions the action
+ * absolutely with size-specific offsets, which put it on a different
+ * baseline and inset than every nav row.
  */
 export function NavUser() {
   const storeUser = useAuthStore((s) => s.user)

@@ -1,12 +1,7 @@
 export type Theme = "gasa" | "gasadark";
 
-/**
- * Namespaced per portal ("gasa-admin-theme" vs the merchant portal's
- * "gasa-theme"). Different localhost ports are already separate origins, so
- * this isn't about dev — it's for a deploy where both portals sit on one
- * domain under different paths and would otherwise share (and clobber) a
- * single key. Keep in sync with the no-flash boot script in index.html.
- */
+/** Namespaced per portal so both apps can share a host without clobbering
+ *  each other. Keep in sync with the no-flash script in index.html. */
 const STORAGE_KEY = "gasa-admin-theme";
 
 export function getStoredTheme(): Theme | null {

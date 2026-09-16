@@ -1,17 +1,9 @@
 import type { ReactNode } from "react"
 
 /**
- * The nav's shape and its contents, kept apart from the components that
- * render it.
- *
- * Two reasons this is its own module rather than living in nav-main.tsx or
- * app-sidebar.tsx:
- *
- * - a file that exports both components and plain values can't be
- *   hot-reloaded reliably (react-refresh/only-export-components), and
- * - the set of destinations is configuration, not presentation. When nav
- *   eventually comes from the API — filtered by what a role may see — this
- *   is the one file that changes.
+ * Nav shape and contents, kept apart from the components that render it: a
+ * file exporting both components and values cannot hot-reload reliably, and
+ * this is the one file that changes when nav becomes role-filtered.
  */
 
 export interface NavItem {

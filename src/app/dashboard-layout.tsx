@@ -16,23 +16,15 @@ import {
 
 interface RouteHandle {
   title?: string;
-  /** Set on a detail-style route (e.g. order detail) to show a two-level trail. */
+  /** Set on a detail route to show a two-level trail. */
   parentTitle?: string;
   parentPath?: string;
 }
 
 /**
- * Authenticated app shell: collapsible-to-icon left nav rail (AppSidebar,
- * from shadcn's sidebar-07 block) + scrollable content area for the nested
- * /app/* routes. Each route under here supplies just its own page content
- * via <Outlet />. Header matches sidebar-07's reference layout (h-16/h-12
- * collapsed, trigger + separator + breadcrumb) rather than a bare bar.
- *
- * Named (and structured) after sidebar-07's own app/dashboard/page.tsx —
- * that file *is* this same SidebarProvider/AppSidebar/SidebarInset wrapper,
- * just inlined per-route because Next.js's App Router does layouts that
- * way. Every /app/* route here shares one sidebar, so the wrapper lives
- * here once instead of being copy-pasted into every page.
+ * Authenticated app shell: the collapsible nav rail plus a header, wrapping
+ * an <Outlet /> for the nested /app routes. The wrapper lives here once
+ * rather than being repeated per route.
  */
 export function DashboardLayout() {
   const matches = useMatches();

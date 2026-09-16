@@ -8,7 +8,7 @@ import { CompaniesPage } from "@/features/organizations/pages/companies-page";
 import { MerchantsPage } from "@/features/organizations/pages/merchants-page";
 import { TransactionsPage } from "@/features/transactions/pages/transactions-page";
 import { RedemptionsPage } from "@/features/redemptions/pages/redemptions-page";
-import { NotFound } from "@/pages/not-found";
+import { NotFound } from "@/app/not-found";
 
 export const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/login" replace /> },

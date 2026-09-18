@@ -18,3 +18,6 @@ pnpm-debug.log*
 
 # Coverage
 coverage
+
+# Vite writes these while resolving the config; never committed.
+vite.config.ts.timestamp-*

@@ -8,6 +8,7 @@ import { CompaniesPage } from "@/features/organizations/pages/companies-page";
 import { MerchantsPage } from "@/features/organizations/pages/merchants-page";
 import { TransactionsPage } from "@/features/transactions/pages/transactions-page";
 import { RedemptionsPage } from "@/features/redemptions/pages/redemptions-page";
+import { UsersPage } from "@/features/users/pages/users-page";
 import { NotFound } from "@/app/not-found";
 
 export const router = createBrowserRouter([
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/app/dashboard" replace /> },
       { path: "dashboard", element: <DashboardPage />, handle: { title: "Dashboard" } },
+      { path: "users", element: <UsersPage />, handle: { title: "Users" } },
       { path: "companies", element: <CompaniesPage />, handle: { title: "Companies" } },
       { path: "merchants", element: <MerchantsPage />, handle: { title: "Merchants" } },
       {

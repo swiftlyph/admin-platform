@@ -4,6 +4,7 @@ import {
   StoreIcon,
   ArrowLeftRightIcon,
   TicketCheckIcon,
+  UsersIcon,
 } from "lucide-react"
 import { NavMain, NavMainCollapsed } from "./nav-main"
 import { NavUser } from "./nav-user"
@@ -33,6 +34,7 @@ const SECTIONS: NavSection[] = [
     items: [
       { title: "Companies", url: "/app/companies", icon: <Building2Icon /> },
       { title: "Merchants", url: "/app/merchants", icon: <StoreIcon /> },
+      { title: "Users", url: "/app/users", icon: <UsersIcon /> },
     ],
   },
   {
